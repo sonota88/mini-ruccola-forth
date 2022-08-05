@@ -257,17 +257,31 @@
             \ list_ s_
             1 chars +
 
-        else dup 49 = if \ 1
+        else dup is-digit-char if
             \ list_ s_ c
             drop
             \ list_ s_
             1 pick
             \ list_ s_ list_
-            1 List-add-int-v2
+
+            1 pick
+            \ list_ s_ list_ s_
+            dup
+            \ list_ s_ list_ s_ s_
+            non-digit-index
+            \ list_ s_ list_ s_ index
+            parse-int
+            \ list_ s_ list_ n
+
+            List-add-int-v2
             \ list_ s_ list_
             drop
             \ list_ s_
-            1 chars + ( TODO )
+            dup
+            \ list_ s_ s_
+            non-digit-index
+            \ list_ s_ index
+            chars +
 
         else dup 34 = if \ "
 

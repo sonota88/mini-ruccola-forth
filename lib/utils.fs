@@ -259,3 +259,94 @@
         endif
     again
 ;
+
+: is-digit-char ( c -- bool )
+    dup 45 = if \ '-'
+        drop true
+        exit
+    endif
+
+    dup 48 < if \ '0'
+        drop false
+        exit
+    endif
+
+    dup 57 > if \ '9'
+        drop false
+        exit
+    endif
+
+    drop true
+;
+
+\ TODO 終端のチェック
+: non-digit-index ( s_ -- index )
+    dup
+    \ s_beg_ s_
+    begin
+        \ s_beg_ s_
+
+        dup c@
+        \ s_beg_ s_ c
+
+        is-digit-char \ s_beg_ s_ bool
+        if
+        else
+            \ s_beg_ s_
+            swap
+            \ s_ s_beg_
+            -
+            exit
+        endif
+
+        \ s_beg_ s_
+        1 chars +
+    again
+
+    1 0 / ( panic )
+;
+
+: parse-int ( s_ size -- n )
+    1 pick
+    \ s_ size s_
+    c@
+    \ s_ size c
+    45 = if \ '-'
+        \ s_ size
+        1 pick
+        \ s_ size s_
+        1 chars +
+        \ s_ size s_+1
+        1 pick
+        \ s_ size s_+1 size
+        1 -
+        \ s_ size s_+1 size-1
+        drop-2
+        drop-2
+        \ s_+1 size-1
+
+        s>number? \ d flag
+        if
+            \ ok
+        else
+            1 0 / \ panic
+        endif
+
+        \ d
+        d>s
+
+        \ s
+        negate
+        \ s
+    else
+        s>number? \ d flag
+        if
+            \ ok
+        else
+            1 0 / \ panic
+        endif
+
+        \ d
+        d>s
+    endif
+;
