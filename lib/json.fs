@@ -3,7 +3,7 @@
 : Json-print-int ( node_ -- )
     Node-get-int
     \ n
-    .
+    print-int
 ;
 
 : Json-print-str ( node_ -- )
@@ -93,72 +93,31 @@
 
 ( -------------------------------- )
 
-: Json-parse-list-v1 ( rest_ -- rest_ list_ )
-    \ s_
-    begin
-        dup
-        \ s_ s_
-        c@
-        \ s_ c
+: consume-int ( s_ size -- node_ num-chars )
+    1 pick
+    1 pick
+    \ s_ size s_ size
+    drop-2
+    \ s_ s_ size
 
-        dup 0 = if
-            \ s_ c
-            drop drop
+    non-digit-index
+    \ s_ index ok
+    check-and-panic
 
-            1 0 / ( panic )
+    \ s_ index
+    \ s_ num-chars
+    swap
+    \ num-chars s_
+    1 pick
+    \ num-chars s_ num-chars
 
-        else dup 91 = if \ [
-            \ parse_list
+    parse-int
+    \ num-chars n
 
-            \ s_ c
-            \ ." 115 [" cr
-            \ dd
-            drop
-            1 chars +
-            \ dd
-            \ s_
-
-        else dup 93 = if \ ]
-            \ ." 124 ]" cr
-
-            \ s_ c
-            drop
-            \ s_
-            1 chars +
-            \ s_
-
-            List-new
-
-            exit
-        else dup 10 = if \ LF
-            \ ." 137 LF" cr
-            \ s_ c
-            drop
-            \ s_
-            \ dd
-            1 chars +
-                    
-        else dup 32 = if \ SPC
-            \ s_ c
-            drop
-            \ s_
-            1 chars +
-
-        else
-            ." ("
-            emit
-            ." )" cr
-            ." 142: must not happen"
-            1 0 / ( panic )
-
-        endif
-        endif
-        endif
-        endif
-        endif
-    again
-
-    \ list_
+    Node-new-int
+    \ num-chars node_
+    swap
+    \ node_ num-chars
 ;
 
 : consume-str ( list_  s_ -- len-to-consume )
@@ -208,6 +167,9 @@
     swap
     \ list_ s_
 
+    1 chars + ( skip first '[' )
+    \ list_ s_
+
     begin
         dup
         \ list_ s_ s_
@@ -218,20 +180,12 @@
             \ list_ s_ c
             drop drop
 
-            1 0 / ( panic )
+            panic
 
-        else dup 91 = if \ [
-            \ parse_list
+        else dup 91 = if \ '['
+            ( TODO )
 
-            \ list_ s_ c
-            \ ." 115 [" cr
-            \ dd
-            drop
-            1 chars +
-            \ dd
-            \ list_ s_
-
-        else dup 93 = if \ ]
+        else dup 93 = if \ ']'
             \ ." 124 ]" cr
 
             \ list_ s_ c
@@ -241,14 +195,13 @@
             \ list_ s_
 
             swap
-
             exit
+
         else dup 10 = if \ LF
             \ ." 137 LF" cr
             \ list_ s_ c
             drop
             \ list_ s_
-            \ dd
             1 chars +
                     
         else dup 32 = if \ SPC
@@ -261,30 +214,40 @@
             \ list_ s_ c
             drop
             \ list_ s_
-            1 pick
-            \ list_ s_ list_
 
-            1 pick
-            \ list_ s_ list_ s_
-            dup
-            \ list_ s_ list_ s_ s_
-            non-digit-index
-            \ list_ s_ list_ s_ index
-            parse-int
-            \ list_ s_ list_ n
-
-            List-add-int-v2
-            \ list_ s_ list_
-            drop
-            \ list_ s_
             dup
             \ list_ s_ s_
-            non-digit-index
-            \ list_ s_ index
+            10000 ( TODO )
+            \ list_ s_ s_ size
+            consume-int
+            \ list_ s_ node_ num-chars
+
+            3 pick
+            \ list_ s_ node_ num-chars list_
+            2 pick
+            \ list_ s_ node_ num-chars list_ node_
+
+            List-add-v2
+            \ list_ s_ node_ num-chars list_
+
+            drop
+            \ list_ s_ node_ num-chars
+            2 pick
+            \ list_ s_ node_ num-chars s_
+            1 pick
+            \ list_ s_ node_ num-chars s_ num-chars
+
             chars +
+            \ list_ s_ node_ num-chars s_+{num-chars}
+            drop-1
+            \ list_ s_ node_ s_+{num-chars}
+            drop-1
+            \ list_ s_ s_+{num-chars}
+            drop-1
+            \ list_ s_+{num-chars}
+            \ list_ next_s_
 
-        else dup 34 = if \ "
-
+        else dup 34 = if \ '"'
             \ list_ s_ c
             drop
             \ list_ s_
@@ -298,6 +261,7 @@
 
             chars +
             \ list_ rest_
+
         else
             ." ("
             emit

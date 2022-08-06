@@ -189,6 +189,7 @@ node / サイズは2固定でよい
     swap !
 ;
 
+( deprecated / Use v2 / サイズを変更していない )
 : List-add ( list_ node_ -- list_ )
     swap
     \ node_ list_
@@ -213,6 +214,28 @@ node / サイズは2固定でよい
     \ node_ list_
 
     swap drop
+    \ list_
+;
+
+: List-increment-size ( list_ -- )
+    dup
+    \ list_ list_
+    List-len
+    \ list_ size
+    1 +
+    \ list_ size+1
+    swap
+    \ size+1 list_
+    ! ( set new size )
+    \
+;
+
+: List-add-v2 ( list_ node_ -- list_ )
+    List-add
+
+    dup
+    \ list_ list_
+    List-increment-size
     \ list_
 ;
 

@@ -5,6 +5,39 @@
     1 0 /
 ;
 
+: check-and-panic ( is-ok -- )
+    if
+        \ ok
+    else
+        panic
+    endif
+;
+
+: print-int--positive ( s -- )
+    \ https://gforth.org/manual/Formatted-numeric-output.html
+    0
+    <<#
+    #s
+    #>
+    type
+    #>>
+;
+
+: print-int--negative ( s -- )
+    negate
+    45 emit \ '-'
+    print-int--positive
+;
+
+: print-int ( s -- )
+    dup
+    0 >= if
+        print-int--positive
+    else
+        print-int--negative
+    endif
+;
+
 : char-index--end-p ( s_ len start-index char s2_ -- s_ len start-index char s2_ end-p )
     \ s_ len start-index char s2_
     4 pick
@@ -59,7 +92,7 @@
         endif
     again
 
-    1 0 / ( panic )
+    panic
 ;
 
 : char-index ( s_ start-index char -- index )
@@ -101,7 +134,7 @@
         endif
     again
 
-    1 0 / ( panic )
+    panic
 ;
 
 : drop-1 ( 1 0 -- 0 )
@@ -122,19 +155,15 @@
 
 : str-cp ( sa_ sb_ len -- )
     \ sa_ sb_ len
-    \ ." 100119 str-cp" dd
+    \ ." str-cp" dd
     2 pick
     \ sa_ sb_ len sa_
     swap
     \ sa_ sb_ sa_ len
     chars +
     \ sa_ sb_ sa_end_
-    \ ." 100123" dd
 
     begin
-        \ ." ----" cr
-        \ ." 100126" dd
-
         dup
         \ sa_ sb_ sa_end_ sa_end_
         3 pick
@@ -147,9 +176,7 @@
             \ sa_ sb_ sa_end_ 0 sb_
             c!
             \ sa_ sb_ sa_end_
-            \ ." 100140" dd
             drop drop drop
-            \ ." 100142" dd
             exit
         endif
 
@@ -158,7 +185,6 @@
         \ sa_ sb_ sa_end_ sa_
         c@
         \ sa_ sb_ sa_end_ c
-        \ ." 100149" dd
 
         2 pick
         \ sa_ sb_ sa_end_ c sb_
@@ -176,15 +202,12 @@
         \ sa_ sb_ sa_end_ sa2_ sb2_
         2 pick
         \ sa_ sb_ sa_end_ sa2_ sb2_ sa_end_
-        \ ." 100162" dd
         drop-3
-        \ ." 100164" dd
         \ sa_ sb_ sa2_ sb2_ sa_end_
         drop-3
         \ sa_ sa2_ sb2_ sa_end_
         drop-3
         \ sa2_ sb2_ sa_end_
-        \ ." 100172" dd
         
         \ panic
     again
@@ -192,9 +215,7 @@
 
 : substr--head ( sa_ len -- new_s_ )
     \ sa_ len
-    \ ." 100105" dd
     here
-    \ ." 100185" dd
     \ sa_ len sb_
     1 pick
     \ sa_ len sb_ len
@@ -208,18 +229,14 @@
     \ sa_ len sb_ sa_ sb_
     3 pick
     \ sa_ len sb_ sa_ sb_ len
-    \ ." 100200" dd
     str-cp
-    \ ." 100202" dd
     \ sa_ len sb_
     swap drop
     swap drop
     \ sb_
-    \ ." 100203" dd
 ;
 
 : substr ( s_ from to -- new_s_ )
-    \ ." 100206" dd
     \ s_ from to
     1 pick
     \ s_ from to from
@@ -279,31 +296,50 @@
     drop true
 ;
 
-\ TODO 終端のチェック
-: non-digit-index ( s_ -- index )
-    dup
-    \ s_beg_ s_
+: non-digit-index ( s_ size -- index ok )
+    1 pick
+    \ s_beg_ size s_
     begin
-        \ s_beg_ s_
+        \ s_beg_ size s_
 
-        dup c@
-        \ s_beg_ s_ c
-
-        is-digit-char \ s_beg_ s_ bool
-        if
-        else
-            \ s_beg_ s_
-            swap
-            \ s_ s_beg_
-            -
+        dup
+        \ s_beg_ size s_ s_
+        3 pick
+        \ s_beg_ size s_ s_ s_beg_
+        -
+        \ s_beg_ size s_ delta
+        2 pick
+        \ s_beg_ size s_ delta size
+        >= if
+            \ s_beg_ size s_
+            drop drop drop
+            -1 false
             exit
         endif
 
-        \ s_beg_ s_
+        \ s_beg_ size s_
+        dup c@
+        \ s_beg_ size s_ c
+
+        is-digit-char \ s_beg_ size s_ bool
+        if
+        else
+            \ s_beg_ size s_
+            2 pick
+            \ s_beg_ size s_ s_beg_ 
+            -
+            \ s_beg_ size index
+            drop-1
+            drop-1
+            true
+            exit
+        endif
+
+        \ s_beg_ size s_
         1 chars +
     again
 
-    1 0 / ( panic )
+    panic
 ;
 
 : parse-int ( s_ size -- n )
@@ -326,11 +362,7 @@
         \ s_+1 size-1
 
         s>number? \ d flag
-        if
-            \ ok
-        else
-            1 0 / \ panic
-        endif
+        check-and-panic
 
         \ d
         d>s
@@ -340,11 +372,7 @@
         \ s
     else
         s>number? \ d flag
-        if
-            \ ok
-        else
-            1 0 / \ panic
-        endif
+        check-and-panic
 
         \ d
         d>s
