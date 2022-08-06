@@ -210,6 +210,12 @@
             \ list_ s_
             1 chars +
 
+        else dup 44 = if \ ','
+            \ list_ s_ c
+            drop
+            \ list_ s_
+            1 chars +
+
         else dup is-digit-char if
             \ list_ s_ c
             drop
@@ -269,6 +275,7 @@
             ." 142: must not happen"
             panic
 
+        endif
         endif
         endif
         endif
