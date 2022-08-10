@@ -159,7 +159,7 @@
     \ len-to-consume
 ;
 
-: Json-parse-list ( rest_ -- rest_ list_ )
+: Json-parse-list ( rest_ -- rest_ list_ ) recursive
     \ s_
 
     List-new
@@ -183,7 +183,27 @@
             panic
 
         else dup 91 = if \ '['
-            ( TODO )
+            \ list_ s_ c
+            drop
+            \ list_ s_
+            dup
+            \ list_ s_ s_
+            Json-parse-list ( recursion )
+            \ list_ s_ | rest_ inner-list_
+            3 pick
+            \ list_ s_ | rest_ inner-list_ | list_
+            1 pick
+            \ list_ s_ | rest_ inner-list_ | list_ inner-list_
+            List-add-list
+            \ list_ s_ | rest_ inner-list_ | list_
+            drop drop
+            \ list_ s_ rest_
+            2 pick
+            \ list_ s_ | rest_ list_
+            drop-2
+            drop-2
+            \ rest_ list_
+            exit
 
         else dup 93 = if \ ']'
             \ ." 124 ]" cr
