@@ -1,7 +1,8 @@
 (
-node / サイズは2固定でよい
+node
 0 type
 1 val: int | str_ | list_
+2 string size
 )
 
 : Node-type-int  1 ;
@@ -23,7 +24,6 @@ node / サイズは2固定でよい
 
     swap
     \ val node_
-    \ .s cr
     1 cells
     \ val node_ 1
     +
@@ -31,33 +31,55 @@ node / サイズは2固定でよい
     !
 ;
 
+: Node-get-val ( node_ -- val )
+    1 cells +
+    \ node_+1
+    @
+    \ val
+;
+
+: Node-new ( node-type -- node_ )
+    here
+    \ nt node_
+
+    3 cells allot
+    \ nt node_
+
+    dup
+    \ nt node_ | node_
+    2 pick
+    \ nt node_ | node_ nt
+    Node-set-type
+    \ nt node_
+
+    drop-1
+    \ node_
+;
+
 : Node-new-int ( n -- node_ )
     \ ." Node-new-int" cr
 
-    here
-    \ n node_
-    \ .s cr
-
-    \ TODO 3 に統一したい
-    2 cells allot
-    \ n node_
+    Node-type-int Node-new
+    \ n | node_
 
     dup
-    \ n node_ node_
-    Node-type-int
-    \ n node_ node_ type
-    Node-set-type
-    \ n node_
-
-    dup
-    \ n node_ node_
+    \ n node_ | node_
     2 pick
-    \ n node_ node_ n
-
+    \ n node_ | node_ n
     Node-set-val
     \ n node_
 
-    swap drop
+    drop-1
+    \ node_
+;
+
+: Node-set-strsize ( node_ size -- )
+    swap
+    \ size node_
+    2 cells +
+    \ size node_+2
+    !
+    \ (empty)
 ;
 
 (
@@ -68,83 +90,58 @@ node / サイズは2固定でよい
 : Node-new-str ( s_ size -- node_ )
     \ ." Node-new-str" cr
 
-    here
-    \ s_ size node_
-    \ .s cr
+    Node-type-str Node-new
+    \ s_ size | node_
 
-    3 cells allot
-    \ s_ size node_
-
-    1 pick
-    \ s_ size node_ size
-    1 pick
-    \ s_ size node_ size node_
-    2 cells +
-    \ s_ size node_ size node_+2
-    !
-    \ s_ size node_
-    swap drop
-
-    \ s_ node_
+    ( set string size )
     dup
-    \ s_ node_ node_
-    Node-type-str
-    \ s_ node_ node_ type
-    Node-set-type
-    \ s_ node_
-
-    dup
-    \ s_ node_ node_
+    \ s_ size node_ | node_
     2 pick
-    \ s_ node_ node_ s_
+    \ s_ size node_ | node_ size
+    Node-set-strsize
+    \ s_ size node_
 
+    drop-1
+    \ s_ node_
+
+    ( set string )
+    dup
+    \ s_ node_ | node_
+    2 pick
+    \ s_ node_ | node_ s_
     Node-set-val
     \ s_ node_
 
-    swap drop
+    drop-1
     \ node_
 ;
 
 : Node-new-list ( list_ -- node_ )
     \ ." Node-new-int" cr
 
-    here
-    \ list_ node_
-    \ .s cr
-
-    \ TODO 3 に統一したい
-    2 cells allot
+    Node-type-list Node-new
     \ list_ node_
 
     dup
-    \ list_ node_ node_
-    Node-type-list
-    \ list_ node_ node_ type
-    Node-set-type
-    \ list_ node_
-
-    dup
-    \ list_ node_ node_
+    \ list_ node_ | node_
     2 pick
-    \ list_ node_ node_ list_
-
+    \ list_ node_ | node_ list_
     Node-set-val
     \ list_ node_
 
-    swap drop
+    drop-1
     \ node_
 ;
 
 : Node-get-int ( node_ -- n )
-    1 cells +
-    \ node_+1
-    @
+    Node-get-val
 ;
 
 : Node-get-str ( node_ -- str_ size )
-    dup 1 cells +
-    @
+    dup
+    Node-get-val
     \ node_ str_
+
     swap
     \ str_ node_
 
@@ -154,9 +151,7 @@ node / サイズは2固定でよい
 ;
 
 : Node-get-list ( node_ -- list_ )
-    1 cells +
-    \ node_+1
-    @
+    Node-get-val
 ;
 
 \ --------------------------------
@@ -267,9 +262,7 @@ node / サイズは2固定でよい
     \ list_ s_
     dup str-len
     \ list_ s_ size
-    \ cr ." 100263" dd
     Node-new-str \ TODO size が必要 ( s_ size -- node_ )
-    \ ." 100265" dd
     \ list_ node_
     \ 100 dump panic
 
