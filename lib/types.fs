@@ -173,19 +173,7 @@ node
     0 + @
 ;
 
-: List-add-int ( list_ -- list_ )
-    \ list_
-    dup
-    \ list_ list_
-    @
-    \ list_ size
-    1 +
-    \ list_ size
-    swap !
-;
-
-( deprecated / Use v2 / サイズを変更していない )
-: List-add ( list_ node_ -- list_ )
+: List-add-v1 ( list_ node_ -- list_ )
     swap
     \ node_ list_
 
@@ -226,7 +214,7 @@ node
 ;
 
 : List-add-v2 ( list_ node_ -- list_ )
-    List-add
+    List-add-v1
 
     dup
     \ list_ list_
@@ -239,20 +227,7 @@ node
     
     Node-new-int
     \ list_ node_
-
-    ( set node )
-    List-add
-    \ list_
-
-    ( increment size )
-    dup dup
-    \ list_ list_ list_
-    List-len
-    \ list_ list_ size
-    1 +
-    swap
-    \ list_ size list_
-    !
+    List-add-v2
     \ list_
 ;
 
@@ -266,19 +241,7 @@ node
     \ list_ node_
     \ 100 dump panic
 
-    ( set node )
-    List-add
-    \ list_
-
-    ( increment size )
-    dup dup
-    \ list_ list_ list_
-    List-len
-    \ list_ list_ size
-    1 +
-    swap
-    \ list_ size list_
-    !
+    List-add-v2
     \ list_
 ;
 
@@ -286,20 +249,7 @@ node
     \ list_ s_ len
     Node-new-str
     \ list_ node_
-
-    ( set node )
-    List-add
-    \ list_
-
-    ( increment size )
-    dup dup
-    \ list_ list_ list_
-    List-len
-    \ list_ list_ size
-    1 +
-    swap
-    \ list_ size list_
-    !
+    List-add-v2
     \ list_
 ;
 
@@ -308,22 +258,7 @@ node
     
     Node-new-list
     \ list_parent_ node_
-
-    ( set node )
-    List-add
-    \ list_parent_
-
-    ( increment size )
-    dup dup
-    \ list_parent_ list_parent_ list_parent_
-
-    List-len
-    \ list_parent_ list_parent_ size
-
-    1 +
-    swap
-    \ list_parent_ size list_parent_
-    !
+    List-add-v2
     \ list_parent_
 ;
 
