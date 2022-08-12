@@ -203,7 +203,8 @@
             drop-2
             drop-2
             \ rest_ list_
-            exit
+            swap
+            \ list_ rest_
 
         else dup 93 = if \ ']'
             \ ." 124 ]" cr
