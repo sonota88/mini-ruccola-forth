@@ -107,9 +107,9 @@
     \ s_ index
     \ s_ num-chars
     swap
-    \ num-chars s_
+    \ num-chars | s_
     1 pick
-    \ num-chars s_ num-chars
+    \ num-chars | s_ num-chars
 
     parse-int
     \ num-chars n
@@ -127,31 +127,31 @@
     \ list_ s_ index
 
     1 pick
-    \ list_ s_ index / s_
+    \ list_ s_ index | s_
     drop-2
-    \ list_ index / s_
+    \ list_ index | s_
     1
-    \ list_ index / s_ start-pos
+    \ list_ index | s_ start-pos
     2 pick
-    \ list_ index / s_ start-pos index
+    \ list_ index | s_ start-pos index
     substr
-    \ list_ index / s2_
+    \ list_ index | s2_
 
     2 pick
-    \ list_ index s2_ / list_
+    \ list_ index s2_ | list_
     drop-3
-    \ index s2_ / list_
+    \ index s2_ | list_
     1 pick
-    \ index s2_ / list_ s2_
+    \ index s2_ | list_ s2_
     drop-2
-    \ index / list_ s2_
+    \ index | list_ s2_
     2 pick
-    \ index / list_ s2_ index
+    \ index | list_ s2_ index
     1 -
-    \ index / list_ s2_ content-len
+    \ index | list_ s2_ content-len
     
     List-add-str-v2
-    \ index / list_
+    \ index | list_
 
     drop
     \ index
@@ -252,12 +252,12 @@
             \ list_ s_ node_ num-chars
 
             3 pick
-            \ list_ s_ node_ num-chars list_
+            \ list_ s_ node_ num-chars | list_
             2 pick
-            \ list_ s_ node_ num-chars list_ node_
+            \ list_ s_ node_ num-chars | list_ node_
 
             List-add-v2
-            \ list_ s_ node_ num-chars list_
+            \ list_ s_ node_ num-chars | list_
 
             drop
             \ list_ s_ node_ num-chars
@@ -283,8 +283,7 @@
 
             1 pick
             1 pick
-            \ list_ s_ list_ s_
-
+            \ list_ s_ | list_ s_
             consume-str
             \ list_ s_ slen
 

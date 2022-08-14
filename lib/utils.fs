@@ -1,3 +1,25 @@
+create read-char-buf_ 1 chars allot
+
+: read-char ( -- char num-read )
+    read-char-buf_ 1 stdin read-file throw
+    \ n
+    dup
+    \ n n
+    0 = if
+        0
+        \ n 0
+    else
+        read-char-buf_
+        \ n read-char-buf_
+        c@
+        \ n c
+        swap
+        \ c n
+    endif
+;
+
+\ --------------------------------
+
 : dd .s cr ;
 
 : panic
@@ -5,6 +27,7 @@
     1 0 /
 ;
 
+\ TODO throw が使える？
 : check-and-panic ( is-ok -- )
     if
         \ ok
@@ -41,13 +64,13 @@
 : char-index--end-p ( s_ len start-index char s2_ -- s_ len start-index char s2_ end-p )
     \ s_ len start-index char s2_
     4 pick
-    \ s_ len start-index char s2_ s_
+    \ s_ len start-index char s2_ | s_
     4 pick
-    \ s_ len start-index char s2_ s_ len
+    \ s_ len start-index char s2_ | s_ len
     chars +
-    \ s_ len start-index char s2_ s_+len
+    \ s_ len start-index char s2_ | s_+len
     1 pick
-    \ s_ len start-index char s2_ s_+len s2_
+    \ s_ len start-index char s2_ | s_+len s2_
     <=
     \ s_ len start-index char s2_ flag
 ;
@@ -165,15 +188,15 @@
 
     begin
         dup
-        \ sa_ sb_ sa_end_ sa_end_
+        \ sa_ sb_ sa_end_ | sa_end_
         3 pick
-        \ sa_ sb_ sa_end_ sa_end_ sa_
+        \ sa_ sb_ sa_end_ | sa_end_ sa_
         <= if
             \ sa_ sb_ sa_end_
             0
-            \ sa_ sb_ sa_end_ 0
+            \ sa_ sb_ sa_end_ | 0
             2 pick
-            \ sa_ sb_ sa_end_ 0 sb_
+            \ sa_ sb_ sa_end_ | 0 sb_
             c!
             \ sa_ sb_ sa_end_
             drop drop drop
@@ -187,7 +210,7 @@
         \ sa_ sb_ sa_end_ c
 
         2 pick
-        \ sa_ sb_ sa_end_ c sb_
+        \ sa_ sb_ sa_end_ | c sb_
         c!
         \ sa_ sb_ sa_end_
 
@@ -224,11 +247,11 @@
     \ sa_ len sb_
 
     2 pick
-    \ sa_ len sb_ s_
+    \ sa_ len sb_ | s_
     1 pick
-    \ sa_ len sb_ sa_ sb_
+    \ sa_ len sb_ | sa_ sb_
     3 pick
-    \ sa_ len sb_ sa_ sb_ len
+    \ sa_ len sb_ | sa_ sb_ len
     str-cp
     \ sa_ len sb_
     swap drop
@@ -239,7 +262,7 @@
 : substr ( s_ from to -- new_s_ )
     \ s_ from to
     1 pick
-    \ s_ from to from
+    \ s_ from | to from
     -
     \ s_ from len
 
@@ -303,13 +326,13 @@
         \ s_beg_ size s_
 
         dup
-        \ s_beg_ size s_ s_
+        \ s_beg_ size s_ | s_
         3 pick
-        \ s_beg_ size s_ s_ s_beg_
+        \ s_beg_ size s_ | s_ s_beg_
         -
-        \ s_beg_ size s_ delta
+        \ s_beg_ size s_ | delta
         2 pick
-        \ s_beg_ size s_ delta size
+        \ s_beg_ size s_ | delta size
         >= if
             \ s_beg_ size s_
             drop drop drop
@@ -354,7 +377,7 @@
         1 chars +
         \ s_ size s_+1
         1 pick
-        \ s_ size s_+1 size
+        \ s_ size s_+1 | size
         1 -
         \ s_ size s_+1 size-1
         drop-2
@@ -377,4 +400,45 @@
         \ d
         d>s
     endif
+;
+
+: read-stdin-all-v2 ( -- src_ size )
+    here
+    \ src_
+    1000 chars allot
+
+    dup
+    \ src_ src_
+    \ src_ src_current_
+
+    begin
+        read-char
+        \ src_ src_cur_ | char num-read
+        0 = if
+            \ src_ src_cur_ char
+            drop
+            \ src_ src_cur_
+
+            dup
+            \ src_ src_cur_ | src_cur_
+            2 pick
+            \ src_ src_cur_ | src_cur_ src_
+            -
+            \ src_ src_cur_ | size
+
+            drop-1
+            \ src_ size
+
+            exit
+        endif
+
+        \ src_ src_cur_ | char
+        1 pick
+        \ src_ src_cur_ | char src_cur_
+        c!
+        \ src_ src_cur_
+
+        1 +
+        \ src_ src_next_
+    again
 ;

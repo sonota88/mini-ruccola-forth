@@ -18,69 +18,6 @@ create src-end_ 1 cells allot
 
 \ --------------------------------
 
-create buf_ 1 chars allot
-
-: read-char ( -- char num-read )
-    buf_ 1 stdin read-file throw
-    \ n
-    dup
-    \ n n
-    0 = if
-        0
-        \ n 0
-    else
-        buf_
-        \ n buf_
-        c@
-        \ n c
-        swap
-        \ c n
-    endif
-;
-
-\ --------------------------------
-
-: read-stdin-all-v2 ( -- src_ size )
-    here
-    \ src_
-    1000 chars allot
-
-    dup
-    \ src_ src_
-    \ src_ src_current_
-
-    begin
-        read-char
-        \ src_ src_cur_ | char num-read
-        0 = if
-            \ src_ src_cur_ char
-            drop
-            \ src_ src_cur_
-
-            dup
-            \ src_ src_cur_ | src_cur_
-            2 pick
-            \ src_ src_cur_ | src_cur_ src_
-            -
-            \ src_ src_cur_ | size
-
-            drop-1
-            \ src_ size
-
-            exit
-        endif
-
-        \ src_ src_cur_ | char
-        1 pick
-        \ src_ src_cur_ | char src_cur_
-        c!
-        \ src_ src_cur_
-
-        1 +
-        \ src_ src_next_
-    again
-;
-
 : start-with-func? ( rest_ -- bool )
     4
     \ rest_ 4
@@ -125,7 +62,6 @@ create buf_ 1 chars allot
 ;
 
 : print-token ( lineno kind_ size s_ size -- )
-
     91 emit \ '['
 
     4 pick
