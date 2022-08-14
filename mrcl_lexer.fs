@@ -167,28 +167,34 @@ create buf_ 1 chars allot
     1 s" ident" s" main" print-token
 ;
 
-: print-sym-token ( sym-c -- )
-    91 emit \ '['
+: char-to-s ( c -- s_ size )
+    s" X"
+    \ c s_ size
+    2 pick
+    \ c s_ size | c
+    2 pick
+    \ c s_ size | c s_
+    ! ( set char )
+    \ c s_ size
 
-    1 print-int
+    drop-2
+    \ s_ size
+;
 
-    44 emit \ ','
-    32 emit \ ' '
-    34 emit \ '"'
+: print-one-char-sym-token ( sym-c -- )
+    char-to-s
+    \ c s_ size
 
-    s" sym"
-    type
+    1 s" sym"
+    \ s_ size | 1 kind_ size
+    4 pick
+    \ s_ size | 1 kind_ size s_
+    4 pick
+    \ s_ size | 1 kind_ size s_ size
+    print-token
+    \ s_ size
 
-    34 emit \ '"'
-    44 emit \ ','
-    32 emit \ ' '
-    34 emit \ '"'
-
-    emit
-
-    34 emit \ '"'
-    93 emit \ ']'
-    10 emit \ LF
+    drop drop
 ;
 
 : main
@@ -220,12 +226,10 @@ create buf_ 1 chars allot
 
         else dup c@ symbol? if
             \ rest_
-            dup c@ print-sym-token
+            dup c@ print-one-char-sym-token
             1 chars +
 
         else dup start-with-func? if
-                \ ." fdsa" bye
-
             \ rest_
             print-func-token
             \ rest_
