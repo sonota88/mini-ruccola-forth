@@ -81,6 +81,43 @@ create buf_ 1 chars allot
     again
 ;
 
+: start-with-func? ( rest_ -- bool )
+    dup c@ 102 <> if
+        \ 1文字目が f ではない
+        panic
+    endif
+
+    \ rest_
+    1 chars +
+    \ rest_
+
+    dup c@ 117 <> if
+        \ 1文字目が u ではない
+        drop false exit
+    endif
+    
+    \ rest_
+    1 chars +
+    \ rest_
+
+    dup c@ 110 <> if
+        \ 1文字目が n ではない
+        drop false exit
+    endif
+    
+    \ rest_
+    1 chars +
+    \ rest_
+
+    dup c@ 99 <> if
+        \ 1文字目が n ではない
+        drop false exit
+    endif
+
+    \ rest_
+    drop true
+;
+
 : print-func-token ( -- )
     91 emit \ '['
     49 emit \ '1'
@@ -119,45 +156,15 @@ create buf_ 1 chars allot
     \ src_
     \ rest_
 
-    dup c@ 102 <> if
-        \ 1文字目が f ではない
+    dup start-with-func? if
+        \ rest_
+        print-func-token
+        \ rest_
+        4 chars +
+        \ rest_
+    else
         panic
     endif
-
-    \ rest_
-    1 chars +
-    \ rest_
-
-    dup c@ 117 <> if
-        \ 1文字目が u ではない
-        panic
-    endif
-    
-    \ rest_
-    1 chars +
-    \ rest_
-
-    dup c@ 110 <> if
-        \ 1文字目が n ではない
-        panic
-    endif
-    
-    \ rest_
-    1 chars +
-    \ rest_
-
-    dup c@ 99 <> if
-        \ 1文字目が n ではない
-        panic
-    endif
-    \ rest_
-    \ この時点で先頭が "func" であることの検証が完了
-
-    print-func-token
-    \ rest_
-
-    1 chars +
-    \ rest_
 
     \ --------------------------------
 
