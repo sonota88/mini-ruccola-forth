@@ -2,6 +2,22 @@ include lib/utils.fs
 
 \ --------------------------------
 
+create src-end_ 1 cells allot
+
+: set-src-end ( pos -- )
+    src-end_ !
+    ( empty )
+;
+
+: end? ( pos -- )
+    src-end_ @
+    \ pos src_end
+    >=
+    ( is-end )
+;
+
+\ --------------------------------
+
 create buf_ 1 chars allot
 
 : read-char ( -- char num-read )
@@ -90,6 +106,15 @@ create buf_ 1 chars allot
     read-stdin-all-v2
     \ src_ size
 
+    1 pick
+    \ src_ size | src_
+    1 pick
+    \ src_ size | src_ size
+    chars +
+    \ src_ size | src_end_
+    set-src-end
+    \ src_ size
+
     drop
     \ src_
     \ rest_
@@ -129,6 +154,23 @@ create buf_ 1 chars allot
     \ この時点で先頭が "func" であることの検証が完了
 
     print-func-token
+    \ rest_
+
+    1 chars +
+    \ rest_
+
+    \ --------------------------------
+
+    dup end? if
+        exit
+    endif
+    \ rest_
+
+    dup c@ 32 <> if
+        \ 1文字目が ' ' ではない
+        panic
+    endif
+    \ rest_
 ;
 
 main
