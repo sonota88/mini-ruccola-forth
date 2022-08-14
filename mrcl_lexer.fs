@@ -82,122 +82,64 @@ create buf_ 1 chars allot
 ;
 
 : start-with-func? ( rest_ -- bool )
-    dup c@ 102 <> if
-        \ 1文字目が f ではない
-        drop false exit
-    endif
+    4
+    \ rest_ 4
+    s" func"
 
-    \ rest_
-    1 chars +
-    \ rest_
-
-    dup c@ 117 <> if
-        \ 1文字目が u ではない
-        drop false exit
-    endif
-    
-    \ rest_
-    1 chars +
-    \ rest_
-
-    dup c@ 110 <> if
-        \ 1文字目が n ではない
-        drop false exit
-    endif
-    
-    \ rest_
-    1 chars +
-    \ rest_
-
-    dup c@ 99 <> if
-        \ 1文字目が c ではない
-        drop false exit
-    endif
-
-    \ rest_
-    drop true
+    compare \ => 等しい場合 0
+    0 =
 ;
 
 : start-with-main? ( rest_ -- bool )
-    dup c@ 109 <> if
-        \ 1文字目が m ではない
-        drop false exit
-    endif
+    4
+    \ rest_ 4
+    s" main"
 
-    \ rest_
-    1 chars +
-    \ rest_
+    compare
+    0 =
+;
 
-    dup c@ 97 <> if
-        \ 1文字目が a ではない
-        drop false exit
-    endif
-    
-    \ rest_
-    1 chars +
-    \ rest_
+: print-token ( lineno kind_ size s_ size -- )
 
-    dup c@ 105 <> if
-        \ 1文字目が i ではない
-        drop false exit
-    endif
-    
-    \ rest_
-    1 chars +
-    \ rest_
+    91 emit \ '['
 
-    dup c@ 110 <> if
-        \ 1文字目が n ではない
-        drop false exit
-    endif
+    4 pick
+    print-int
 
-    \ rest_
-    drop true
+    44 emit \ ','
+    32 emit \ ' '
+    34 emit \ '"'
+
+    3 pick
+    \ lineno kind_ size s_ size | kind_
+    3 pick
+    \ lineno kind_ size s_ size | kind_ size
+    type
+
+    34 emit \ '"'
+    44 emit \ ','
+    32 emit \ ' '
+    34 emit \ '"'
+
+    1 pick
+    \ lineno kind_ size s_ size | s_
+    1 pick
+    \ lineno kind_ size s_ size | s_ size
+    type
+
+    34 emit \ '"'
+    93 emit \ ']'
+    10 emit \ LF
+
+    drop drop drop drop drop
 ;
 
 : print-func-token ( -- )
-    91 emit \ '['
-    49 emit \ '1'
-    44 emit \ ','
-    32 emit \ ' '
-    34 emit \ '"'
-    107 emit \ 'k'
-    119 emit \ 'w'
-    34 emit \ '"'
-    44 emit \ ','
-    32 emit \ ' '
-    34 emit \ '"'
-    102 emit \ 'f'
-    117 emit \ 'u'
-    110 emit \ 'n'
-    99 emit \ 'c'
-    34 emit \ '"'
-    93 emit \ ']'
-    10 emit \ LF
+    1 s" kw" s" func" print-token
 ;
 
 : print-main-token ( -- )
-    91 emit \ '['
-    49 emit \ '1'
-    44 emit \ ','
-    32 emit \ ' '
-    34 emit \ '"'
-    105 emit \ 'i'
-    100 emit \ 'd'
-    101 emit \ 'e'
-    110 emit \ 'n'
-    116 emit \ 't'
-    34 emit \ '"'
-    44 emit \ ','
-    32 emit \ ' '
-    34 emit \ '"'
-    109 emit \ 'm'
-    97 emit \ 'a'
-    105 emit \ 'i'
-    110 emit \ 'n'
-    34 emit \ '"'
-    93 emit \ ']'
-    10 emit \ LF
+    1 s" ident" s" main" print-token
 ;
 
 : main
