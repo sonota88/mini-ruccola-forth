@@ -118,6 +118,43 @@ create buf_ 1 chars allot
     drop true
 ;
 
+: start-with-main? ( rest_ -- bool )
+    dup c@ 109 <> if
+        \ 1文字目が m ではない
+        drop false exit
+    endif
+
+    \ rest_
+    1 chars +
+    \ rest_
+
+    dup c@ 97 <> if
+        \ 1文字目が a ではない
+        drop false exit
+    endif
+    
+    \ rest_
+    1 chars +
+    \ rest_
+
+    dup c@ 105 <> if
+        \ 1文字目が i ではない
+        drop false exit
+    endif
+    
+    \ rest_
+    1 chars +
+    \ rest_
+
+    dup c@ 110 <> if
+        \ 1文字目が n ではない
+        drop false exit
+    endif
+
+    \ rest_
+    drop true
+;
+
 : print-func-token ( -- )
     91 emit \ '['
     49 emit \ '1'
@@ -134,6 +171,30 @@ create buf_ 1 chars allot
     117 emit \ 'u'
     110 emit \ 'n'
     99 emit \ 'c'
+    34 emit \ '"'
+    93 emit \ ']'
+    10 emit \ LF
+;
+
+: print-main-token ( -- )
+    91 emit \ '['
+    49 emit \ '1'
+    44 emit \ ','
+    32 emit \ ' '
+    34 emit \ '"'
+    105 emit \ 'i'
+    100 emit \ 'd'
+    101 emit \ 'e'
+    110 emit \ 'n'
+    116 emit \ 't'
+    34 emit \ '"'
+    44 emit \ ','
+    32 emit \ ' '
+    34 emit \ '"'
+    109 emit \ 'm'
+    97 emit \ 'a'
+    105 emit \ 'i'
+    110 emit \ 'n'
     34 emit \ '"'
     93 emit \ ']'
     10 emit \ LF
@@ -173,8 +234,16 @@ create buf_ 1 chars allot
             4 chars +
             \ rest_
 
+        else dup start-with-main? if
+            \ rest_
+            print-main-token
+            \ rest_
+            4 chars +
+            \ rest_
+
         else
             panic
+        endif
         endif
         endif
     again
