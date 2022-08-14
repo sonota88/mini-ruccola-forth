@@ -156,28 +156,28 @@ create buf_ 1 chars allot
     \ src_
     \ rest_
 
-    dup start-with-func? if
+    begin
+        dup end? if
+            exit
+        endif
         \ rest_
-        print-func-token
-        \ rest_
-        4 chars +
-        \ rest_
-    else
-        panic
-    endif
 
-    \ --------------------------------
+        dup c@ 32 = if \ ' '
+            \ rest_
+            1 chars + ( skip char )
 
-    dup end? if
-        exit
-    endif
-    \ rest_
+        else dup start-with-func? if
+            \ rest_
+            print-func-token
+            \ rest_
+            4 chars +
+            \ rest_
 
-    dup c@ 32 <> if
-        \ 1文字目が ' ' ではない
-        panic
-    endif
-    \ rest_
+        else
+            panic
+        endif
+        endif
+    again
 ;
 
 main
