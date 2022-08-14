@@ -167,6 +167,19 @@ create buf_ 1 chars allot
     1 s" ident" s" main" print-token
 ;
 
+: print-sym-token ( s_ size -- )
+    1 s" sym"
+    \ s_ size | 1 kind_ size
+    4 pick
+    \ s_ size | 1 kind_ size s_
+    4 pick
+    \ s_ size | 1 kind_ size s_ size
+    print-token
+    \ s_ size
+
+    drop drop
+;
+
 : char-to-s ( c -- s_ size )
     s" X"
     \ c s_ size
@@ -179,22 +192,6 @@ create buf_ 1 chars allot
 
     drop-2
     \ s_ size
-;
-
-: print-one-char-sym-token ( sym-c -- )
-    char-to-s
-    \ c s_ size
-
-    1 s" sym"
-    \ s_ size | 1 kind_ size
-    4 pick
-    \ s_ size | 1 kind_ size s_
-    4 pick
-    \ s_ size | 1 kind_ size s_ size
-    print-token
-    \ s_ size
-
-    drop drop
 ;
 
 : main
@@ -226,7 +223,11 @@ create buf_ 1 chars allot
 
         else dup c@ symbol? if
             \ rest_
-            dup c@ print-one-char-sym-token
+            dup c@
+            \ rest_ | c
+            char-to-s
+            \ rest_ | s_ size
+            print-sym-token
             1 chars +
 
         else dup start-with-func? if
