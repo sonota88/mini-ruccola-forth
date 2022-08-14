@@ -84,7 +84,7 @@ create buf_ 1 chars allot
 : start-with-func? ( rest_ -- bool )
     dup c@ 102 <> if
         \ 1文字目が f ではない
-        panic
+        drop false exit
     endif
 
     \ rest_
@@ -110,7 +110,7 @@ create buf_ 1 chars allot
     \ rest_
 
     dup c@ 99 <> if
-        \ 1文字目が n ではない
+        \ 1文字目が c ではない
         drop false exit
     endif
 
