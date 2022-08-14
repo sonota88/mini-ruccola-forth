@@ -99,6 +99,31 @@ create buf_ 1 chars allot
     0 =
 ;
 
+: symbol? ( c -- bool )
+    dup 40 = if \ '('
+        drop
+        true exit
+    endif
+
+    dup 41 = if \ ')'
+        drop
+        true exit
+    endif
+
+    dup 123 = if \ '{'
+        drop
+        true exit
+    endif
+
+    dup 125 = if \ '}'
+        drop
+        true exit
+    endif
+
+    drop
+    false
+;
+
 : print-token ( lineno kind_ size s_ size -- )
 
     91 emit \ '['
@@ -193,27 +218,14 @@ create buf_ 1 chars allot
             \ rest_
             1 chars + ( skip char )
 
-        else dup c@ 40 = if \ '('
-            \ rest_
-            dup c@ print-sym-token
-            1 chars +
-
-        else dup c@ 41 = if \ ')'
-            \ rest_
-            dup c@ print-sym-token
-            1 chars +
-
-        else dup c@ 123 = if \ '{'
-            \ rest_
-            dup c@ print-sym-token
-            1 chars +
-
-        else dup c@ 125 = if \ '}'
+        else dup c@ symbol? if
             \ rest_
             dup c@ print-sym-token
             1 chars +
 
         else dup start-with-func? if
+                \ ." fdsa" bye
+
             \ rest_
             print-func-token
             \ rest_
@@ -229,9 +241,6 @@ create buf_ 1 chars allot
 
         else
             panic
-        endif
-        endif
-        endif
         endif
         endif
         endif
