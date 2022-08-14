@@ -142,6 +142,30 @@ create buf_ 1 chars allot
     1 s" ident" s" main" print-token
 ;
 
+: print-sym-token ( sym-c -- )
+    91 emit \ '['
+
+    1 print-int
+
+    44 emit \ ','
+    32 emit \ ' '
+    34 emit \ '"'
+
+    s" sym"
+    type
+
+    34 emit \ '"'
+    44 emit \ ','
+    32 emit \ ' '
+    34 emit \ '"'
+
+    emit
+
+    34 emit \ '"'
+    93 emit \ ']'
+    10 emit \ LF
+;
+
 : main
     read-stdin-all-v2
     \ src_ size
@@ -169,6 +193,26 @@ create buf_ 1 chars allot
             \ rest_
             1 chars + ( skip char )
 
+        else dup c@ 40 = if \ '('
+            \ rest_
+            dup c@ print-sym-token
+            1 chars +
+
+        else dup c@ 41 = if \ ')'
+            \ rest_
+            dup c@ print-sym-token
+            1 chars +
+
+        else dup c@ 123 = if \ '{'
+            \ rest_
+            dup c@ print-sym-token
+            1 chars +
+
+        else dup c@ 125 = if \ '}'
+            \ rest_
+            dup c@ print-sym-token
+            1 chars +
+
         else dup start-with-func? if
             \ rest_
             print-func-token
@@ -185,6 +229,10 @@ create buf_ 1 chars allot
 
         else
             panic
+        endif
+        endif
+        endif
+        endif
         endif
         endif
         endif
