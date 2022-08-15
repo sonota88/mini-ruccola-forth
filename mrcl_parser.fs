@@ -198,6 +198,30 @@ create pos_ 1 cells allot
     incr-pos
 ;
 
+: consume-sym ( s_ size -- )
+    0 peek
+    \ s_ size  t_
+
+    dup Token-get-kind
+    \ s_ size  t_ | kind_ size
+    s" sym" str-eq if
+        \ ok
+    else
+        panic ( assertion failed )
+    endif
+
+
+    Token-get-str
+    \ s_ size  s_ size
+    str-eq if
+        \ ok
+    else
+        panic ( assertion failed )
+    endif
+
+    incr-pos
+;
+
 \ --------------------------------
 
 : parse-func-def ( -- fn-def_ )
@@ -231,8 +255,8 @@ create pos_ 1 cells allot
     List-add-list
     \ fn_
 
-    incr-pos \ (
-    incr-pos \ )
+    s" (" consume-sym
+    s" )" consume-sym
 
     \ ----------------
 
@@ -241,8 +265,8 @@ create pos_ 1 cells allot
     List-add-list
     \ fn_
 
-    incr-pos \ {
-    incr-pos \ }
+    s" {" consume-sym
+    s" }" consume-sym
 
     \ ----------------
 
