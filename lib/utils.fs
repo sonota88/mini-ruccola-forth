@@ -177,6 +177,11 @@ create read-char-buf_ 1 chars allot
     r> r> r>
 ;
 
+: str-eq ( sa_ size  sb_ size -- bool )
+    compare \ => 等しい場合 0
+    0 =
+;
+
 : str-cp ( sa_ sb_ len -- )
     \ sa_ sb_ len
     \ ." str-cp" dd

@@ -105,8 +105,7 @@ create src-end_ 1 cells allot
     \ rest_ 4
     s" func"
 
-    compare \ => 等しい場合 0
-    0 =
+    str-eq
 ;
 
 : symbol? ( c -- bool )

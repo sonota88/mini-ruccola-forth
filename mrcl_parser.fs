@@ -169,8 +169,9 @@ create pos_ 1 cells allot
     \ s_ size  t_
     Token-get-str
     \ s_ size  s_ size
-    compare \ => 等しい場合 0
-    0 <> if
+    str-eq if
+        \ ok
+    else
         panic ( assertion failed )
     endif
 
