@@ -162,7 +162,7 @@ create pos_ 1 cells allot
     \ s_ size
 ;
 
-: Token-get-str ( t_ -- s_ size )
+: Token-get-val ( t_ -- s_ size )
     \ : List-get ( list_ n -- node_ )
     2
     \ t_ 2
@@ -194,7 +194,7 @@ create pos_ 1 cells allot
     \ kind_ size  val_ size | val_ size
     0 peek
     \ kind_ size  val_ size | val_ size  t_
-    Token-get-str
+    Token-get-val
     \ kind_ size  val_ size | val_ size  val_ size
     str-eq if
         \ ok
@@ -255,7 +255,7 @@ create pos_ 1 cells allot
 
     0 peek
     \ fn_ | t_
-    Token-get-str
+    Token-get-val
     \ fn_ | s_ size
 
     List-add-str-v2
