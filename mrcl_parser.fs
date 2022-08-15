@@ -164,6 +164,21 @@ create pos_ 1 cells allot
 
 \ --------------------------------
 
+: consume-kw ( s_ size -- )
+    0 peek
+    \ s_ size  t_
+    Token-get-str
+    \ s_ size  s_ size
+    compare \ => 等しい場合 0
+    0 <> if
+        panic ( assertion failed )
+    endif
+
+    incr-pos
+;
+
+\ --------------------------------
+
 : parse-func-def ( -- fn-def_ )
     List-new
     \ fn_
@@ -173,7 +188,7 @@ create pos_ 1 cells allot
     s" func" List-add-str-v2
     \ fn_
 
-    incr-pos \ func
+    s" func" consume-kw
 
     \ ----------------
     \ fn name
