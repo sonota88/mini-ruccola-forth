@@ -18,21 +18,92 @@ create src-end_ 1 cells allot
 
 \ --------------------------------
 
+: alphabet? ( c -- bool )
+    dup 97 < if \ 'a'
+        drop false exit
+    endif
+
+    dup 122 > if \ 'z'
+        drop false exit
+    endif
+
+    drop true
+;
+
+: ident-char? ( c -- bool )
+    dup alphabet? if
+        drop true exit
+    endif
+
+    \ TODO large letter
+
+    dup 95 = if \ '_'
+        drop true exit
+    endif
+
+    drop false
+;
+
+: non-ident-index ( s_ size -- index ok )
+    1 pick
+    \ s_beg_ size s_
+    begin
+        \ s_beg_ size s_
+
+        dup
+        \ s_beg_ size s_ | s_
+        3 pick
+        \ s_beg_ size s_ | s_ s_beg_
+        -
+        \ s_beg_ size s_ | delta
+        2 pick
+        \ s_beg_ size s_ | delta size
+        >= if
+            \ s_beg_ size s_
+            drop drop drop
+            -1 false
+            exit
+        endif
+
+        \ s_beg_ size s_
+        dup c@
+        \ s_beg_ size s_ c
+
+        ident-char? \ s_beg_ size s_ | bool
+        if
+            \ (continue)
+        else
+            \ s_beg_ size s_
+            2 pick
+            \ s_beg_ size s_ s_beg_ 
+            -
+            \ s_beg_ size index
+            drop-1
+            drop-1
+            true
+            exit
+        endif
+
+        \ s_beg_ size s_
+        1 chars +
+    again
+
+    panic
+;
+
+: match-ident ( rest_ -- num-chars )
+    100 \ TODO dummy
+    \ rest_ size
+    non-ident-index
+    \ index ok
+;
+
 : start-with-func? ( rest_ -- bool )
     4
     \ rest_ 4
     s" func"
 
     compare \ => 等しい場合 0
-    0 =
-;
-
-: start-with-main? ( rest_ -- bool )
-    4
-    \ rest_ 4
-    s" main"
-
-    compare
     0 =
 ;
 
@@ -99,8 +170,16 @@ create src-end_ 1 cells allot
     1 s" kw" s" func" print-token
 ;
 
-: print-main-token ( -- )
-    1 s" ident" s" main" print-token
+: print-ident-token ( rest_ size -- )
+    1 s" ident"
+    \ rest_ size | 1  kind_ size
+    4 pick
+    4 pick
+    \ rest_ size | 1  kind_ size  rest_ size
+    print-token
+    \ rest_ size
+
+    drop drop
 ;
 
 : print-sym-token ( s_ size -- )
@@ -173,11 +252,19 @@ create src-end_ 1 cells allot
             4 chars +
             \ rest_
 
-        else dup start-with-main? if
-            \ rest_
-            print-main-token
-            \ rest_
-            4 chars +
+        else dup
+            \ rest_ | rest_
+            match-ident
+            \ rest_ | index ok
+        if
+            \ rest_ index
+            1 pick
+            \ rest_ index | rest_
+            1 pick
+            \ rest_ index | rest_ index
+            print-ident-token
+            \ rest_ index
+            chars +
             \ rest_
 
         else

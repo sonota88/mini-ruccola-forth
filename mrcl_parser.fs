@@ -135,13 +135,31 @@ create pos_ 1 cells allot
 
 : peek ( offset -- t_ )
     tokens_
-    \ offset ts_
-    swap
-    \ ts_ offset
+    \ offset | ts_
+    pos@
+    \ offset | ts_ pos
     cells +
-    \ ts_+offset
+    \ offset | ts_+pos
+
+    swap
+    \ ts_+pos offset
+    cells +
+    \ ts_+pos+offset
+
     @
     \ t_
+;
+
+\ --------------------------------
+
+: Token-get-str ( t_ -- s_ size )
+    \ : List-get ( list_ n -- node_ )
+    2
+    \ t_ 2
+    List-get
+    \ node_
+    Node-get-str
+    \ s_ size
 ;
 
 \ --------------------------------
@@ -158,11 +176,17 @@ create pos_ 1 cells allot
     incr-pos \ func
 
     \ ----------------
+    \ fn name
 
-    s" main" List-add-str-v2
+    0 peek
+    \ fn_ | t_
+    Token-get-str
+    \ fn_ | s_ size
+
+    List-add-str-v2
     \ fn_
 
-    incr-pos \ main
+    incr-pos
 
     \ ----------------
 
