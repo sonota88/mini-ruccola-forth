@@ -98,6 +98,12 @@ create src-end_ 1 cells allot
     \ rest_ size
     non-ident-index
     \ index ok
+
+    1 pick 0 = if
+        \ index ok
+        drop false
+        \ index ng
+    endif
 ;
 
 : start-with-func? ( rest_ -- bool )
@@ -236,6 +242,12 @@ create src-end_ 1 cells allot
             \ rest_
             1 chars + ( skip char )
 
+        else dup c@ 10 = if \ LF
+            \ rest_
+            1 chars + ( skip char )
+
+            \ TODO increment lineno
+
         else dup c@ symbol? if
             \ rest_
             dup c@
@@ -270,6 +282,7 @@ create src-end_ 1 cells allot
         else
             ." 275 unexpected pattern"
             panic
+        endif
         endif
         endif
         endif
