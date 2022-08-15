@@ -22,9 +22,25 @@ create read-char-buf_ 1 chars allot
 
 : dd .s cr ;
 
+: emit-e ( c -- )
+    stderr emit-file
+    stderr flush-file
+;
+
+: cr-e ( -- )
+    10 emit-e
+;
+
+: type-e ( s_ size -- )
+    stderr write-file throw
+    stderr flush-file
+;
+
 : panic
-    cr ." PANIC" cr
-    bye
+    s\" \nPANIC\n" type-e
+
+    \ https://stackoverflow.com/questions/71616920/how-can-i-exit-forth-with-a-non-zero-exit-status
+    1 (bye)
 ;
 
 \ TODO throw が使える？

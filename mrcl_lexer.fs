@@ -93,13 +93,63 @@ create src-end_ 1 cells allot
     panic
 ;
 
-: match-ident ( rest_ -- num-chars )
-    100 \ TODO dummy
+: lf-index ( s_ size -- index flag )
+    drop
+    \ s_
+    0 10
+    \ s_ start-index char
+    char-index
+    \ index
+
+    dup 0 >= if
+        \ index
+        true
+        \ index ok
+    else
+        \ index
+        false
+        \ index ng
+    endif
+;
+
+: match-ident ( rest_ -- num-chars flag )
+    200 \ TODO dummy
     \ rest_ size
     non-ident-index
     \ index ok
 
     1 pick 0 = if
+        \ index ok
+        drop false
+        \ index ng
+    endif
+;
+
+: match-comment ( rest_ -- num-chars flag )
+    \ rest_
+    dup c@
+    \ rest_ c0
+    47 <> if \ '/'
+        drop
+        -1 false
+        exit
+    endif
+
+    \ rest_
+    dup 1 chars + c@
+    \ rest_ c1
+    47 <> if \ '/'
+        drop
+        -1 false
+        exit
+    endif
+
+    100 \ TODO dummy
+    \ rest_ size
+    lf-index
+    \ index ok
+
+    1 pick 0 < if
         \ index ok
         drop false
         \ index ng
@@ -279,9 +329,19 @@ create src-end_ 1 cells allot
             chars +
             \ rest_
 
+        else drop dup
+            \ rest_ | rest_
+            match-comment
+            \ rest_ | size ok
+        if
+            \ rest_ size
+            chars +
+            \ rest_
+
         else
             ." 275 unexpected pattern"
             panic
+        endif
         endif
         endif
         endif
