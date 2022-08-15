@@ -46,7 +46,8 @@ create src-end_ 1 cells allot
     drop false
 ;
 
-: non-ident-index ( s_ size -- index ok )
+\ TODO use do/loop
+: non-ident-index ( s_ size -- index flag )
     1 pick
     \ s_beg_ size s_
     begin
@@ -116,12 +117,12 @@ create src-end_ 1 cells allot
     200 \ TODO dummy
     \ rest_ size
     non-ident-index
-    \ index ok
-
-    1 pick 0 = if
-        \ index ok
+    \ index flag
+    1 pick
+    1 >= if
+        drop true
+    else
         drop false
-        \ index ng
     endif
 ;
 
@@ -144,10 +145,10 @@ create src-end_ 1 cells allot
         exit
     endif
 
-    100 \ TODO dummy
+    200 \ TODO dummy
     \ rest_ size
     lf-index
-    \ index ok
+    \ index flag
 
     1 pick 0 < if
         \ index ok
@@ -317,7 +318,7 @@ create src-end_ 1 cells allot
         else dup
             \ rest_ | rest_
             match-ident
-            \ rest_ | index ok
+            \ rest_ | index flag
         if
             \ rest_ index
             1 pick
@@ -332,14 +333,14 @@ create src-end_ 1 cells allot
         else drop dup
             \ rest_ | rest_
             match-comment
-            \ rest_ | size ok
+            \ rest_ | size flag
         if
             \ rest_ size
             chars +
             \ rest_
 
         else
-            ." 275 unexpected pattern"
+            s" 275 unexpected pattern" type-e
             panic
         endif
         endif
