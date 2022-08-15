@@ -253,6 +253,13 @@ node
     \ list_
 ;
 
+: List-add-str-v3 ( list_ s_ len -- )
+    List-add-str-v2
+    \ list_
+    drop
+    \ (empty)
+;
+
 : List-add-list ( list_parent_ list_child_ -- list_parent_ )
     \ ." List-add-list" cr
     
@@ -260,6 +267,13 @@ node
     \ list_parent_ node_
     List-add-v2
     \ list_parent_
+;
+
+: List-add-list-v2 ( list_parent_ list_child_ -- list_parent_ )
+    List-add-list
+    \ list_parent_
+    drop
+    \ (empty)
 ;
 
 : List-get ( list_ n -- node_ )

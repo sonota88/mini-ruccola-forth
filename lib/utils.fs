@@ -118,6 +118,7 @@ create read-char-buf_ 1 chars allot
     panic
 ;
 
+\ index に加えて flag を返すとよい？
 : char-index ( s_ start-index char -- index )
     2 pick
     \ s_ start-index char s_
