@@ -16,64 +16,112 @@
     dq
 ;
 
-: Json-print-list ( list_ -- ) recursive
-    \ list_
+: print-indent ( pretty lv -- )
+    swap
+    \ lv pretty
+    if
+        dup 0 = if
+            drop exit
+        else
+            0
+            \ lv 0
+            do
+                ."   "
+            loop
+        endif
+    else
+        drop
+    endif
+;
+
+: Json-print-list ( list_ pretty lv -- ) recursive
+    \ list_ pretty lv
+    2 pick
+    \ list_ pretty lv list_
+    drop-3
+    \ pretty lv list_
 
     ." ["
+    2 pick if cr endif
+    \ pretty lv list_
 
     dup
-    \ list_ list_
+    \ pretty lv list_ | list_
     List-len
-    \ list_ size
+    \ pretty lv list_ | size
 
     dup 0 = if
-        \ list_ size
-        drop drop
+        \ pretty lv list_ size
+        3 pick
+        3 pick
+        print-indent
+
+        drop drop drop drop
         ." ]"
-        cr
         exit
     endif
 
     0
-    \ list_ size 0
+    \ pretty lv list_ size 0
     do
 
         dup
-        \ list_ list_
+        \ pretty lv list_ list_
         i List-get
-        \ list_ node_
+        \ pretty lv list_ node_
 
         i 0 > if
-            ." , "
+            ." ,"
+            \ pretty lv list_ node_
+            3 pick
+            if
+                cr
+            else
+                ."  "
+            endif
         endif
+        \ pretty lv list_ node_
+
+        3 pick
+        3 pick
+        \ pretty lv list_ node_ | pretty lv
+        1 +
+        print-indent
+        \ pretty lv list_ node_
 
         dup Node-get-type
-        \ list_ node_ type
+        \ pretty lv list_ node_ type
         dup Node-type-int = if
             ( int )
-            \ list_ node_ type
+            \ pretty lv list_ node_ type
             drop
-            \ list_ node_
+            \ pretty lv list_ node_
             Json-print-int
-            \ list_
+            \ pretty lv list_
 
         else dup Node-type-str = if
             ( str )
-            \ list_ node_ type
+            \ pretty lv list_ node_ type
             drop
-            \ list_ node_
+            \ pretty lv list_ node_
             Json-print-str
-            \ list_
+            \ pretty lv list_
 
         else dup Node-type-list = if
             ( list )
-            \ list_ node_ type
+            \ pretty lv list_ node_ type
             drop
-            \ list_ node_
+            \ pretty lv list_ node_
             Node-get-list
-            \ list_ list_
+            \ pretty lv list_ | list_
+            3 pick
+            \ pretty lv list_ | list_ pretty
+            3 pick
+            \ pretty lv list_ | list_ pretty lv
+            1 +
+            \ pretty lv list_ | list_ pretty lv+1
             Json-print-list
-            \ list_
+            \ pretty lv list_
 
         endif
         endif
@@ -81,14 +129,28 @@
 
     loop
 
-    \ list_
+    \ pretty lv list_
+    2 pick if cr endif
+    \ pretty lv list_
+
+    2 pick
+    2 pick
+    print-indent
+    \ pretty lv list_
+
     drop
+    drop
+    drop
+
     ." ]"
-    cr
 ;
 
 : Json-print ( list_ -- )
-    Json-print-list
+    true 0 Json-print-list
+;
+
+: Json-print-oneline ( list_ -- )
+    false 0 Json-print-list
 ;
 
 ( -------------------------------- )

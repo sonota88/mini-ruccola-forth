@@ -154,7 +154,7 @@ create src-end_ 1 cells allot
     List-add-str-v2
     \ lineno kind_ size s_ size | list_
 
-    Json-print
+    Json-print-oneline
     \ lineno kind_ size s_ size
 
     drop
@@ -162,6 +162,8 @@ create src-end_ 1 cells allot
     drop
     drop
     drop
+
+    cr
 ;
 
 : print-func-token ( -- )
@@ -266,6 +268,7 @@ create src-end_ 1 cells allot
             \ rest_
 
         else
+            ." 275 unexpected pattern"
             panic
         endif
         endif
