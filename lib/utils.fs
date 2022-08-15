@@ -23,8 +23,8 @@ create read-char-buf_ 1 chars allot
 : dd .s cr ;
 
 : panic
-    ." PANIC"
-    1 0 /
+    cr ." PANIC" cr
+    bye
 ;
 
 \ TODO throw が使える？
