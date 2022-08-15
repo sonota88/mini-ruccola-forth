@@ -44,7 +44,7 @@
         \ list_ node_
 
         i 0 > if
-            ." ,"
+            ." , "
         endif
 
         dup Node-get-type

@@ -1,4 +1,6 @@
 include lib/utils.fs
+include lib/types.fs
+include lib/json.fs
 
 \ --------------------------------
 
@@ -133,37 +135,34 @@ create src-end_ 1 cells allot
 ;
 
 : print-token ( lineno kind_ size s_ size -- )
-    91 emit \ '['
+    List-new
+    \ lineno kind_ size s_ size list_
+
+    5 pick
+    \ lineno kind_ size s_ size | list_ lineno
+    List-add-int-v2
+    \ lineno kind_ size s_ size | list_
 
     4 pick
-    print-int
+    4 pick
+    \ lineno kind_ size s_ size | list_  kind_ size
+    List-add-str-v2
+    \ lineno kind_ size s_ size | list_
 
-    44 emit \ ','
-    32 emit \ ' '
-    34 emit \ '"'
+    2 pick
+    2 pick
+    \ lineno kind_ size s_ size | list_  s_ size
+    List-add-str-v2
+    \ lineno kind_ size s_ size | list_
 
-    3 pick
-    \ lineno kind_ size s_ size | kind_
-    3 pick
-    \ lineno kind_ size s_ size | kind_ size
-    type
+    Json-print
+    \ lineno kind_ size s_ size
 
-    34 emit \ '"'
-    44 emit \ ','
-    32 emit \ ' '
-    34 emit \ '"'
-
-    1 pick
-    \ lineno kind_ size s_ size | s_
-    1 pick
-    \ lineno kind_ size s_ size | s_ size
-    type
-
-    34 emit \ '"'
-    93 emit \ ']'
-    10 emit \ LF
-
-    drop drop drop drop drop
+    drop
+    drop
+    drop
+    drop
+    drop
 ;
 
 : print-func-token ( -- )
