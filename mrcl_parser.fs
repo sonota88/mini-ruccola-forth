@@ -152,6 +152,16 @@ create pos_ 1 cells allot
 
 \ --------------------------------
 
+: Token-get-kind ( t_ -- kind_ size )
+    \ : List-get ( list_ n -- node_ )
+    1
+    \ t_ 1
+    List-get
+    \ node_
+    Node-get-str
+    \ s_ size
+;
+
 : Token-get-str ( t_ -- s_ size )
     \ : List-get ( list_ n -- node_ )
     2
@@ -167,6 +177,16 @@ create pos_ 1 cells allot
 : consume-kw ( s_ size -- )
     0 peek
     \ s_ size  t_
+
+    dup Token-get-kind
+    \ s_ size  t_ | kind_ size
+    s" kw" str-eq if
+        \ ok
+    else
+        panic ( assertion failed )
+    endif
+
+
     Token-get-str
     \ s_ size  s_ size
     str-eq if
