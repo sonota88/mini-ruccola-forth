@@ -172,35 +172,65 @@ create pos_ 1 cells allot
     \ s_ size
 ;
 
+: Token-kind-eq ( t_  kind_ size )
+    2 pick
+    \ t_ | kind_ size  t_
+    Token-get-kind
+    \ t_ | kind_ size  kind_ size
+    str-eq
+    \ t_ | bool
+
+    drop-1
+    \ bool
+;
+
+: Token-val-eq ( t_  val_ size )
+    2 pick
+    \ t_ | val_ size  t_
+    Token-get-val
+    \ t_ | val_ size  val_ size
+    str-eq
+    \ t_ | bool
+
+    drop-1
+    \ bool
+;
+
 \ --------------------------------
 
-: consume ( kind_ size  val_ size -- )
-    3 pick
-    3 pick
-    \ kind_ size  val_ size  | kind_ size
-    0 peek
-    \ kind_ size  val_ size  | kind_ size  t_
-    Token-get-kind
-    \ kind_ size  val_ size  | kind_ size  kind_ size
-    str-eq if
+: assert-kind ( t_  kind_ size -- )
+    \ t_  kind_ size
+    Token-kind-eq if
         \ ok
     else
         panic ( assertion failed )
     endif
+;
+
+: assert-val ( t_  val_ size -- )
+    \ t_  val_ size
+    Token-val-eq if
+        \ ok
+    else
+        panic ( assertion failed )
+    endif
+;
+
+: consume ( kind_ size  val_ size -- )
+    0 peek
+    \ kind_ size  val_ size | t_
+    4 pick
+    4 pick
+    \ kind_ size  val_ size | t_  kind_ size
+    assert-kind
     \ kind_ size  val_ size
 
-    1 pick
-    1 pick
-    \ kind_ size  val_ size | val_ size
     0 peek
-    \ kind_ size  val_ size | val_ size  t_
-    Token-get-val
-    \ kind_ size  val_ size | val_ size  val_ size
-    str-eq if
-        \ ok
-    else
-        panic ( assertion failed )
-    endif
+    \ kind_ size  val_ size | t_
+    2 pick
+    2 pick
+    \ kind_ size  val_ size | t_  val_ size
+    assert-val
     \ kind_ size  val_ size
 
     drop
