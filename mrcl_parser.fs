@@ -174,52 +174,67 @@ create pos_ 1 cells allot
 
 \ --------------------------------
 
-: consume-kw ( s_ size -- )
+: consume ( kind_ size  val_ size -- )
+    3 pick
+    3 pick
+    \ kind_ size  val_ size  | kind_ size
     0 peek
-    \ s_ size  t_
-
-    dup Token-get-kind
-    \ s_ size  t_ | kind_ size
-    s" kw" str-eq if
-        \ ok
-    else
-        panic ( assertion failed )
-    endif
-
-
-    Token-get-str
-    \ s_ size  s_ size
+    \ kind_ size  val_ size  | kind_ size  t_
+    Token-get-kind
+    \ kind_ size  val_ size  | kind_ size  kind_ size
     str-eq if
         \ ok
     else
         panic ( assertion failed )
     endif
+    \ kind_ size  val_ size
+
+    1 pick
+    1 pick
+    \ kind_ size  val_ size | val_ size
+    0 peek
+    \ kind_ size  val_ size | val_ size  t_
+    Token-get-str
+    \ kind_ size  val_ size | val_ size  val_ size
+    str-eq if
+        \ ok
+    else
+        panic ( assertion failed )
+    endif
+    \ kind_ size  val_ size
+
+    drop
+    drop
+    drop
+    drop
 
     incr-pos
 ;
 
+: consume-kw ( s_ size -- )
+    s" kw"
+    \ val_ size | kind_ size
+    3 pick
+    3 pick
+    \ val_ size | kind_ size  kind_ size
+    consume
+    \ val_ size
+
+    drop
+    drop
+;
+
 : consume-sym ( s_ size -- )
-    0 peek
-    \ s_ size  t_
+    s" sym"
+    \ val_ size | kind_ size
+    3 pick
+    3 pick
+    \ val_ size | kind_ size  kind_ size
+    consume
+    \ val_ size
 
-    dup Token-get-kind
-    \ s_ size  t_ | kind_ size
-    s" sym" str-eq if
-        \ ok
-    else
-        panic ( assertion failed )
-    endif
-
-
-    Token-get-str
-    \ s_ size  s_ size
-    str-eq if
-        \ ok
-    else
-        panic ( assertion failed )
-    endif
-
-    incr-pos
+    drop
+    drop
 ;
 
 \ --------------------------------
