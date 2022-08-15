@@ -51,8 +51,6 @@ include lib/json.fs
 : main
     read-stdin-all-v2
     \ json_ size
-    drop
-    \ json_
 
     Json-parse
     \ tree_

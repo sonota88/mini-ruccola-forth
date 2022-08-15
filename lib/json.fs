@@ -372,7 +372,8 @@
     \ list_
 ;
 
-: Json-parse ( src_ -- list_ )
+: Json-parse ( src_ size -- list_ )
+    drop \ TODO
     Json-parse-list
     \ rest_ list_
     swap drop
