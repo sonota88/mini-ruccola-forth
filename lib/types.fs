@@ -283,3 +283,17 @@ node
     \ list_+(n+1)cells
     @
 ;
+
+: List-get-str ( list_ n -- s_ size )
+    List-get
+    \ node_
+    Node-get-str
+    \ s_ size
+;
+
+: List-get-list ( list_ n -- child_list_ )
+    List-get
+    \ node_
+    Node-get-list
+    \ child_list_
+;
