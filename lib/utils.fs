@@ -323,12 +323,7 @@ create read-char-buf_ 1 chars allot
     again
 ;
 
-: is-digit-char ( c -- bool )
-    dup 45 = if \ '-'
-        drop true
-        exit
-    endif
-
+: is-digit-char? ( c -- flag )
     dup 48 < if \ '0'
         drop false
         exit
@@ -340,6 +335,20 @@ create read-char-buf_ 1 chars allot
     endif
 
     drop true
+;
+
+: is-int-char? ( c -- flag )
+    dup is-digit-char? if
+        drop true
+        exit
+    endif
+
+    dup 45 = if \ '-'
+        drop true
+        exit
+    endif
+
+    drop false
 ;
 
 : non-digit-index ( s_ size -- index ok )
@@ -355,7 +364,7 @@ create read-char-buf_ 1 chars allot
         c@
         \ s_ | c
 
-        is-digit-char \ s_ | flag
+        is-int-char? \ s_ | flag
         if
             \ (continue)
         else
