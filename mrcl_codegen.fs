@@ -12,6 +12,7 @@ include lib/json.fs
     ."   pop bp" cr
 ;
 
+\ (func fn-name args body)
 : gen-func-def ( fn-def_ -- )
     dup
     1
@@ -20,8 +21,20 @@ include lib/json.fs
     \ fn-def_ | fn-name_ size
 
     ." label " type cr
+    \ fn-def_
 
     asm-prologue
+
+    dup
+    \ fn-def_ | fn-def_
+    3 List-get-list
+    \ fn-def_ | stmts_
+    dup List-len 0
+    \ fn-def_ | stmts_ size 0
+    ?do
+        \ fn-def_ stmts_
+        ."   sub_sp 1" cr
+    loop
 
     asm-epilogue
 

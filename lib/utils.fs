@@ -134,6 +134,7 @@ create read-char-buf_ 1 chars allot
     panic
 ;
 
+\ TODO Try using ?do/loop
 \ index に加えて flag を返すとよい？
 : char-index ( s_ start-index char -- index )
     2 pick

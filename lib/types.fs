@@ -269,7 +269,7 @@ node
     \ list_parent_
 ;
 
-: List-add-list-v2 ( list_parent_ list_child_ -- list_parent_ )
+: List-add-list-v2 ( list_parent_ list_child_ -- )
     List-add-list
     \ list_parent_
     drop

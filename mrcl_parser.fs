@@ -298,7 +298,7 @@ create pos_ 1 cells allot
     \ ----------------
 
     List-new
-    \ fn_ []
+    \ fn_ fn-arg-names_
     List-add-list
     \ fn_
 
@@ -307,12 +307,35 @@ create pos_ 1 cells allot
 
     \ ----------------
 
+    s" {" consume-sym
+
+    \ fn_
     List-new
-    \ fn_ []
+    \ fn_ stmts_
+
+    0 peek
+    \ fn_ stmts_ t_
+    s" var" Token-val-eq if
+        List-new
+        \ fn_ stmts_ | stmt_
+
+        s" var" consume-kw
+        s" var" List-add-str-v2
+
+        incr-pos \ a
+        s" a" List-add-str-v2
+
+        incr-pos \ ;
+
+        \ fn_ stmts_ | stmt_
+        List-add-list
+        \ fn_ stmts_
+    endif
+
+    \ fn_ stmts_
     List-add-list
     \ fn_
 
-    s" {" consume-sym
     s" }" consume-sym
 
     \ ----------------

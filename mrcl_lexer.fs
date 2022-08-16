@@ -141,8 +141,16 @@ create src-end_ 1 cells allot
 
 : start-with-func? ( rest_ -- bool )
     4
-    \ rest_ 4
+    \ rest_ size
     s" func"
+
+    str-eq
+;
+
+: start-with-var? ( rest_ -- bool )
+    3
+    \ rest_ size
+    s" var"
 
     str-eq
 ;
@@ -154,6 +162,11 @@ create src-end_ 1 cells allot
     endif
 
     dup 41 = if \ ')'
+        drop
+        true exit
+    endif
+
+    dup 59 = if \ ';'
         drop
         true exit
     endif
@@ -207,6 +220,10 @@ create src-end_ 1 cells allot
 
 : print-func-token ( -- )
     1 s" kw" s" func" print-token
+;
+
+: print-var-token ( -- )
+    1 s" kw" s" var" print-token
 ;
 
 : print-ident-token ( rest_ size -- )
@@ -297,6 +314,13 @@ create src-end_ 1 cells allot
             4 chars +
             \ rest_
 
+        else dup start-with-var? if
+            \ rest_
+            print-var-token
+            \ rest_
+            3 chars +
+            \ rest_
+
         else dup
             \ rest_ | rest_
             match-ident
@@ -324,6 +348,7 @@ create src-end_ 1 cells allot
         else
             s" 275 unexpected pattern" type-e
             panic
+        endif
         endif
         endif
         endif
