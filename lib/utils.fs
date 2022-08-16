@@ -342,49 +342,33 @@ create read-char-buf_ 1 chars allot
 ;
 
 : non-digit-index ( s_ size -- index ok )
-    1 pick
-    \ s_beg_ size s_
-    begin
-        \ s_beg_ size s_
-
+    \ s_ size
+    0
+    \ s_ | size 0
+    ?do
+        \ s_
         dup
-        \ s_beg_ size s_ | s_
-        3 pick
-        \ s_beg_ size s_ | s_ s_beg_
-        -
-        \ s_beg_ size s_ | delta
-        2 pick
-        \ s_beg_ size s_ | delta size
-        >= if
-            \ s_beg_ size s_
-            drop drop drop
-            -1 false
-            exit
-        endif
+        \ s_ | s_
+        i chars +
+        \ s_ | s_+i
+        c@
+        \ s_ | c
 
-        \ s_beg_ size s_
-        dup c@
-        \ s_beg_ size s_ c
-
-        is-digit-char \ s_beg_ size s_ bool
+        is-digit-char \ s_ | flag
         if
+            \ (continue)
         else
-            \ s_beg_ size s_
-            2 pick
-            \ s_beg_ size s_ s_beg_ 
-            -
-            \ s_beg_ size index
-            drop-1
-            drop-1
-            true
-            exit
+            \ s_
+            drop
+            i true
+
+            unloop exit
         endif
+    loop
 
-        \ s_beg_ size s_
-        1 chars +
-    again
-
-    panic
+    \ s_
+    drop
+    -1 false
 ;
 
 : parse-int ( s_ size -- n )
