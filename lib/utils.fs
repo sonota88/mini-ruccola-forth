@@ -351,7 +351,7 @@ create read-char-buf_ 1 chars allot
     drop false
 ;
 
-: non-digit-index ( s_ size -- index ok )
+: non-int-index ( s_ size -- index ok )
     \ s_ size
     0
     \ s_ | size 0

@@ -162,7 +162,7 @@
     drop-2
     \ s_ s_ size
 
-    non-digit-index
+    non-int-index
     \ s_ index ok
     check-and-panic
 
