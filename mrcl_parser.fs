@@ -309,6 +309,23 @@ create pos_ 1 cells allot
     endif
 ;
 
+: parse-stmt ( -- stmt_ )
+    0 peek s" return"
+    \ t_  val_ size
+    Token-val-eq
+    if
+        \ (empty)
+        parse-return
+        \ return_
+
+    else
+        \ (empty)
+        0 peek Json-print
+        s" 324 failed to parse statement" type-e
+        panic
+    endif
+;
+
 : parse-func-def ( -- fn-def_ )
     List-new
     \ fn_
@@ -351,52 +368,47 @@ create pos_ 1 cells allot
     List-new
     \ fn_ stmts_
 
-    0 peek
-    \ fn_ stmts_ t_
+    begin
 
-    dup s" }" Token-val-eq if
+        0 peek
         \ fn_ stmts_ t_
-        drop
-        \ fn_ stmts_
-        
-        \ no statements
-    else
-        \ fn_ stmts_ t_
-
-        s" var" Token-val-eq if
-            List-new
-            \ fn_ stmts_ | stmt_
-
-            s" var" consume-kw
-            s" var" List-add-str-v2
-
-            incr-pos \ a
-            s" a" List-add-str-v2
-
-            incr-pos \ ;
-
-            \ fn_ stmts_ | stmt_
-            List-add-list
-            \ fn_ stmts_
-
-        else 0 peek
+        dup s" }" Token-val-eq if
             \ fn_ stmts_ t_
-            s" return" Token-val-eq
-        if
-            parse-return
-            \ fn_ stmts_ | return_
-            List-add-list
+            drop
             \ fn_ stmts_
 
+            true \ break / end of statements
         else
-            0 peek Json-print
-            s" 334 unexpected token" type-e
-            panic
+            \ fn_ stmts_ t_
 
-        endif
+            s" var" Token-val-eq if
+                List-new
+                \ fn_ stmts_ | stmt_
+
+                s" var" consume-kw
+                s" var" List-add-str-v2
+
+                incr-pos \ a
+                s" a" List-add-str-v2
+
+                incr-pos \ ;
+
+                \ fn_ stmts_ | stmt_
+                List-add-list
+                \ fn_ stmts_
+
+            else
+                parse-stmt
+                \ fn_ stmts_ stmt_
+                List-add-list
+                \ fn_ stmts_
+
+            endif
+
+            false \ continue
         endif
 
-    endif
+    until
 
     \ fn_ stmts_
     List-add-list
