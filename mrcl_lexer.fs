@@ -218,12 +218,25 @@ create src-end_ 1 cells allot
     cr
 ;
 
+: print-kw-token ( val_ size -- )
+    1 s" kw"
+    \ val_ size | 1  kind_ size
+    4 pick
+    4 pick
+    \ val_ size | 1  kind_ size  val_ size
+    print-token
+    \ val_ size
+
+    drop
+    drop
+;
+
 : print-func-token ( -- )
-    1 s" kw" s" func" print-token
+    s" func" print-kw-token
 ;
 
 : print-var-token ( -- )
-    1 s" kw" s" var" print-token
+    s" var" print-kw-token
 ;
 
 : print-ident-token ( rest_ size -- )
