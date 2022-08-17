@@ -337,6 +337,7 @@ create read-char-buf_ 1 chars allot
     drop true
 ;
 
+\ TODO rename => int-char?
 : is-int-char? ( c -- flag )
     dup is-digit-char? if
         drop true

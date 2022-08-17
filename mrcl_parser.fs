@@ -205,6 +205,7 @@ create pos_ 1 cells allot
     Token-kind-eq if
         \ ok
     else
+        s" 208 unexpected token kind" type-e
         panic ( assertion failed )
     endif
 ;
@@ -214,6 +215,7 @@ create pos_ 1 cells allot
     Token-val-eq if
         \ ok
     else
+        s" 218 unexpected token value" type-e
         panic ( assertion failed )
     endif
 ;
@@ -271,6 +273,43 @@ create pos_ 1 cells allot
 
 \ --------------------------------
 
+: parse-return ( -- stmt_ )
+    s" return" consume-kw
+
+    0 peek
+    \ t_
+    s" ;" Token-val-eq if
+        s" ;" consume-sym
+
+        List-new
+        \ stmt_
+        s" return"
+        \ stmt_  s_ size
+        List-add-str-v2
+        \ stmt_
+    else
+        List-new
+        \ stmt_
+        s" return"
+        \ stmt_  s_ size
+        List-add-str-v2
+        \ stmt_
+
+        0 peek incr-pos
+        \ stmt_ t_
+        Token-get-val
+        \ stmt_ s_ size
+        parse-int
+        \ stmt_ n
+        List-add-int-v2
+        \ stmt_
+
+        s" ;" consume-sym
+
+        \ stmt_
+    endif
+;
+
 : parse-func-def ( -- fn-def_ )
     List-new
     \ fn_
@@ -315,21 +354,49 @@ create pos_ 1 cells allot
 
     0 peek
     \ fn_ stmts_ t_
-    s" var" Token-val-eq if
-        List-new
-        \ fn_ stmts_ | stmt_
 
-        s" var" consume-kw
-        s" var" List-add-str-v2
-
-        incr-pos \ a
-        s" a" List-add-str-v2
-
-        incr-pos \ ;
-
-        \ fn_ stmts_ | stmt_
-        List-add-list
+    dup s" }" Token-val-eq if
+        \ fn_ stmts_ t_
+        drop
         \ fn_ stmts_
+        
+        \ no statements
+    else
+        \ fn_ stmts_ t_
+
+        s" var" Token-val-eq if
+            List-new
+            \ fn_ stmts_ | stmt_
+
+            s" var" consume-kw
+            s" var" List-add-str-v2
+
+            incr-pos \ a
+            s" a" List-add-str-v2
+
+            incr-pos \ ;
+
+            \ fn_ stmts_ | stmt_
+            List-add-list
+            \ fn_ stmts_
+
+        else 0 peek
+            \ fn_ stmts_ t_
+            s" return" Token-val-eq
+        if
+            parse-return
+            \ fn_ stmts_ | return_
+            List-add-list
+            \ fn_ stmts_
+
+        else
+            0 peek Json-print
+            s" 334 unexpected token" type-e
+            panic
+
+        endif
+        endif
+
     endif
 
     \ fn_ stmts_

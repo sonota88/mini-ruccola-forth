@@ -155,6 +155,14 @@ create src-end_ 1 cells allot
     str-eq
 ;
 
+: start-with-return? ( rest_ -- bool )
+    6
+    \ rest_ size
+    s" return"
+
+    str-eq
+;
+
 : symbol? ( c -- bool )
     dup 40 = if \ '('
         drop
@@ -183,6 +191,22 @@ create src-end_ 1 cells allot
 
     drop
     false
+;
+
+\ TODO mv to utils
+: consume-int-v2 ( s_ size -- s_ size )
+    \ TODO use str-dup
+    1 pick
+    1 pick
+    \ s_ size  s_ size
+    drop-2
+    \ s_  s_ size
+
+    non-int-index
+    \ s_ index ok
+    check-and-panic
+    \ s_ index
+    \ s_ num-chars
 ;
 
 : print-token ( lineno kind_ size s_ size -- )
@@ -239,6 +263,10 @@ create src-end_ 1 cells allot
     s" var" print-kw-token
 ;
 
+: print-return-token ( -- )
+    s" return" print-kw-token
+;
+
 : print-ident-token ( rest_ size -- )
     1 s" ident"
     \ rest_ size | 1  kind_ size
@@ -261,7 +289,20 @@ create src-end_ 1 cells allot
     print-token
     \ s_ size
 
-    drop drop
+    drop drop \ TODO use str-drop
+;
+
+: print-int-token ( s_ size -- )
+    1 s" int"
+    \ s_ size | 1 kind_ size
+    4 pick
+    \ s_ size | 1 kind_ size s_
+    4 pick
+    \ s_ size | 1 kind_ size s_ size
+    print-token
+    \ s_ size
+
+    drop drop \ TODO use str-drop
 ;
 
 : char-to-s ( c -- s_ size )
@@ -320,6 +361,21 @@ create src-end_ 1 cells allot
             print-sym-token
             1 chars +
 
+        else dup c@ is-int-char? if
+            \ rest_
+            dup 16
+            \ rest_ | rest_ dummy-size
+            consume-int-v2
+            \ rest_ | s_ num-chars
+            1 pick \ TODO use str-dup
+            1 pick
+            \ rest_ | s_ num-chars | s_ num-chars
+            print-int-token
+            \ rest_ | s_ num-chars
+            drop-1
+            \ rest_ num-chars
+            chars +
+
         else dup start-with-func? if
             \ rest_
             print-func-token
@@ -332,6 +388,13 @@ create src-end_ 1 cells allot
             print-var-token
             \ rest_
             3 chars +
+            \ rest_
+
+        else dup start-with-return? if
+            \ rest_
+            print-return-token
+            \ rest_
+            6 chars +
             \ rest_
 
         else dup
@@ -361,6 +424,8 @@ create src-end_ 1 cells allot
         else
             s" 275 unexpected pattern" type-e
             panic
+        endif
+        endif
         endif
         endif
         endif
