@@ -236,10 +236,9 @@ create pos_ 1 cells allot
     assert-val
     \ kind_ size  val_ size
 
-    drop
-    drop
-    drop
-    drop
+    str-drop
+    str-drop
+    \ (empty)
 
     incr-pos
 ;
@@ -253,8 +252,8 @@ create pos_ 1 cells allot
     consume
     \ val_ size
 
-    drop
-    drop
+    str-drop
+    \ (empty)
 ;
 
 : consume-sym ( s_ size -- )
@@ -266,8 +265,8 @@ create pos_ 1 cells allot
     consume
     \ val_ size
 
-    drop
-    drop
+    str-drop
+    \ (empty)
 ;
 
 \ --------------------------------

@@ -16,11 +16,21 @@ include lib/json.fs
 \ (return {expr})
 : gen-return ( stmt_ -- )
     dup List-len 2 = if
-        ."   cp 42 reg_a" cr \ TODO
+        \ stmt_
+        1 List-get
+        \ stmt_ node_
+        Node-get-int \ TODO switch by kind
+        \ stmt_ n
+        ."   cp "
+        print-int
+        ."  reg_a" cr
+        \ stmt_
     endif
 
     asm-epilogue
     ."   ret" cr
+
+    \ stmt_
     drop
 ;
 
