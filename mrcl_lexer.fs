@@ -139,28 +139,30 @@ create src-end_ 1 cells allot
     endif
 ;
 
-: start-with-func? ( rest_ -- bool )
-    4
-    \ rest_ size
-    s" func"
+: kw? ( s_ size -- flag )
+    str-dup
+    \ s_ size | s_ size
+    s" func" str-eq if
+        \ s_ size
+        str-drop
+        true exit
+    endif
 
-    str-eq
-;
+    str-dup
+    s" return" str-eq if
+        str-drop
+        true exit
+    endif
 
-: start-with-var? ( rest_ -- bool )
-    3
-    \ rest_ size
-    s" var"
+    str-dup
+    s" var" str-eq if
+        str-drop
+        true exit
+    endif
 
-    str-eq
-;
-
-: start-with-return? ( rest_ -- bool )
-    6
-    \ rest_ size
-    s" return"
-
-    str-eq
+    \ s_ size
+    str-drop
+    false exit
 ;
 
 : symbol? ( c -- bool )
@@ -248,18 +250,6 @@ create src-end_ 1 cells allot
     \ val_ size
 
     str-drop
-;
-
-: print-func-token ( -- )
-    s" func" print-kw-token
-;
-
-: print-var-token ( -- )
-    s" var" print-kw-token
-;
-
-: print-return-token ( -- )
-    s" return" print-kw-token
 ;
 
 : print-ident-token ( rest_ size -- )
@@ -368,39 +358,33 @@ create src-end_ 1 cells allot
             \ rest_ num-chars
             chars +
 
-        else dup start-with-func? if
-            \ rest_
-            print-func-token
-            \ rest_
-            4 chars +
-            \ rest_
-
-        else dup start-with-var? if
-            \ rest_
-            print-var-token
-            \ rest_
-            3 chars +
-            \ rest_
-
-        else dup start-with-return? if
-            \ rest_
-            print-return-token
-            \ rest_
-            6 chars +
-            \ rest_
-
         else dup
             \ rest_ | rest_
             match-ident
             \ rest_ | index flag
         if
             \ rest_ index
+
             str-dup
             \ rest_ index | rest_ index
-            print-ident-token
-            \ rest_ index
-            chars +
-            \ rest_
+            kw? if
+                \ rest_ index
+                str-dup
+                \ rest_ index | rest_ index
+                print-kw-token
+                \ rest_ index
+                chars +
+                \ rest_
+            else
+                \ rest_ index
+                str-dup
+                \ rest_ index | rest_ index
+                print-ident-token
+                \ rest_ index
+                chars +
+                \ rest_
+            endif
+
 
         else drop dup
             \ rest_ | rest_
@@ -414,9 +398,6 @@ create src-end_ 1 cells allot
         else
             s" 275 unexpected pattern" type-e
             panic
-        endif
-        endif
-        endif
         endif
         endif
         endif
