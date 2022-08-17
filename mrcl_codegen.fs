@@ -30,11 +30,6 @@ include lib/json.fs
     drop
 ;
 
-: str-dup ( s_ size -- s_ size  s_ size )
-    1 pick
-    1 pick
-;
-
 : str-drop ( s_ size -- )
     drop drop
 ;

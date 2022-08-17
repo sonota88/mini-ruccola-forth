@@ -199,6 +199,11 @@ create read-char-buf_ 1 chars allot
     0 =
 ;
 
+: str-dup ( s_ size -- s_ size  s_ size )
+    1 pick
+    1 pick
+;
+
 : str-cp ( sa_ sb_ len -- )
     \ sa_ sb_ len
     \ ." str-cp" dd

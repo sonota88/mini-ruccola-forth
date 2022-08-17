@@ -195,9 +195,7 @@ create src-end_ 1 cells allot
 
 \ TODO mv to utils
 : consume-int-v2 ( s_ size -- s_ size )
-    \ TODO use str-dup
-    1 pick
-    1 pick
+    str-dup
     \ s_ size  s_ size
     drop-2
     \ s_  s_ size
@@ -323,9 +321,7 @@ create src-end_ 1 cells allot
     read-stdin-all-v2
     \ src_ size
 
-    1 pick
-    \ src_ size | src_
-    1 pick
+    str-dup
     \ src_ size | src_ size
     chars +
     \ src_ size | src_end_
@@ -367,8 +363,7 @@ create src-end_ 1 cells allot
             \ rest_ | rest_ dummy-size
             consume-int-v2
             \ rest_ | s_ num-chars
-            1 pick \ TODO use str-dup
-            1 pick
+            str-dup
             \ rest_ | s_ num-chars | s_ num-chars
             print-int-token
             \ rest_ | s_ num-chars
@@ -403,9 +398,7 @@ create src-end_ 1 cells allot
             \ rest_ | index flag
         if
             \ rest_ index
-            1 pick
-            \ rest_ index | rest_
-            1 pick
+            str-dup
             \ rest_ index | rest_ index
             print-ident-token
             \ rest_ index

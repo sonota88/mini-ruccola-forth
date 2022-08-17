@@ -31,8 +31,7 @@ create read-tokens-end_ 1 cells allot
     read-stdin-all-v2
     \ src_ size
 
-    1 pick
-    1 pick
+    str-dup
     \ src_ size | src_ size
     chars +
     \ src_ size | end
