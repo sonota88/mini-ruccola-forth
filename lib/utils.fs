@@ -204,6 +204,10 @@ create read-char-buf_ 1 chars allot
     1 pick
 ;
 
+: str-drop ( s_ size -- )
+    drop drop
+;
+
 : str-cp ( sa_ sb_ len -- )
     \ sa_ sb_ len
     \ ." str-cp" dd

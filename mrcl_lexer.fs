@@ -229,12 +229,10 @@ create src-end_ 1 cells allot
     \ lineno kind_ size s_ size | list_
 
     Json-print-oneline
-    \ lineno kind_ size s_ size
+    \ lineno  kind_ size  s_ size
 
-    drop
-    drop
-    drop
-    drop
+    str-drop
+    str-drop
     drop
 
     cr
@@ -249,8 +247,7 @@ create src-end_ 1 cells allot
     print-token
     \ val_ size
 
-    drop
-    drop
+    str-drop
 ;
 
 : print-func-token ( -- )
@@ -274,7 +271,7 @@ create src-end_ 1 cells allot
     print-token
     \ rest_ size
 
-    drop drop
+    str-drop
 ;
 
 : print-sym-token ( s_ size -- )
@@ -287,7 +284,7 @@ create src-end_ 1 cells allot
     print-token
     \ s_ size
 
-    drop drop \ TODO use str-drop
+    str-drop
 ;
 
 : print-int-token ( s_ size -- )
@@ -300,7 +297,7 @@ create src-end_ 1 cells allot
     print-token
     \ s_ size
 
-    drop drop \ TODO use str-drop
+    str-drop
 ;
 
 : char-to-s ( c -- s_ size )

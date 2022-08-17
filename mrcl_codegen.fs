@@ -30,10 +30,6 @@ include lib/json.fs
     drop
 ;
 
-: str-drop ( s_ size -- )
-    drop drop
-;
-
 \ (func fn-name args body)
 : gen-func-def ( fn-def_ -- )
     dup
