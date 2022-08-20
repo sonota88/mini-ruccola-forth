@@ -173,6 +173,11 @@ create pos_ 1 cells allot
     \ s_ size
 ;
 
+: Token-get-intval ( t_ -- n )
+    Token-get-val
+    parse-int
+;
+
 : Token-kind-eq ( t_  kind_ size )
     2 pick
     \ t_ | kind_ size  t_
@@ -211,10 +216,31 @@ create pos_ 1 cells allot
 
 : assert-val ( t_  val_ size -- )
     \ t_  val_ size
+    2 pick
+    \ t_  val_ size | t_
+    2 pick
+    2 pick
+    \ t_  val_ size | t_  val_ size
+
     Token-val-eq if
+        \ t_  val_ size
+        str-drop
+        drop
         \ ok
     else
-        s" 218 unexpected token value" type-e
+        \ t_  val_ size
+        ." expected("
+        \ t_  val_ size
+        type
+        ." )" cr
+
+        Token-get-val
+        ." actual("
+        \ \ val_ size
+        type
+        ." )" cr
+
+        ." 218 unexpected token value"
         panic ( assertion failed )
     endif
 ;
@@ -325,6 +351,38 @@ create pos_ 1 cells allot
     endif
 ;
 
+: parse-var ( -- stmt_ )
+    List-new
+    \ stmt_
+
+    s" var" consume-kw
+    s" var" List-add-str-v2
+
+    0 peek
+    \ stmt_ | t_
+    Token-get-val
+    \ stmt_ | s_ size
+    List-add-str-v2
+    \ stmt_
+    incr-pos \ var-name
+    \ stmt_
+
+    0 peek
+    \ stmt_ | t_
+    s" =" Token-val-eq if
+        s" =" consume-sym
+
+        0 peek
+        incr-pos
+
+        Token-get-intval
+        \ stmt_ n
+        List-add-int-v2
+        \ stmt_
+    endif
+    s" ;" consume-sym
+;
+
 : parse-func-def ( -- fn-def_ )
     List-new
     \ fn_
@@ -381,17 +439,8 @@ create pos_ 1 cells allot
             \ fn_ stmts_ t_
 
             s" var" Token-val-eq if
-                List-new
-                \ fn_ stmts_ | stmt_
-
-                s" var" consume-kw
-                s" var" List-add-str-v2
-
-                incr-pos \ a
-                s" a" List-add-str-v2
-
-                incr-pos \ ;
-
+                \ fn_ stmts_
+                parse-var
                 \ fn_ stmts_ | stmt_
                 List-add-list
                 \ fn_ stmts_

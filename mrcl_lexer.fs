@@ -181,6 +181,11 @@ create src-end_ 1 cells allot
         true exit
     endif
 
+    dup 61 = if \ '='
+        drop
+        true exit
+    endif
+
     dup 123 = if \ '{'
         drop
         true exit

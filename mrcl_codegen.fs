@@ -34,9 +34,26 @@ include lib/json.fs
     drop
 ;
 
-\ (var)
+\ (var {name})
+\ (var {name} {initial-value})
 : gen-var ( stmt_ -- )
     ."   sub_sp 1" cr
+
+    dup List-len
+    \ stmt_ size
+    3 = if
+        dup
+        \ stmt_ | stmt_
+        2 List-get-int \ TODO non-int case
+        \ stmt_ | n
+
+        ."   cp "
+        print-int
+        ."  reg_a" cr
+
+        ."   cp reg_a [bp:-1]" cr \ TODO
+    endif
+
     drop
 ;
 

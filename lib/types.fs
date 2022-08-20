@@ -284,6 +284,13 @@ node
     @
 ;
 
+: List-get-int ( list_ n -- n )
+    List-get
+    \ node_
+    Node-get-int
+    \ n
+;
+
 : List-get-str ( list_ n -- s_ size )
     List-get
     \ node_
