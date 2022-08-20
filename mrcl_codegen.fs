@@ -67,6 +67,37 @@ include lib/json.fs
     drop
 ;
 
+\ (fn-name arg1 arg2 ... argN)
+: _gen-funcall ( funcall_ -- )
+    dup 0 List-get-str
+    \ funcall_  fn_name_ size
+
+    \ TODO
+    ."   _cmt call~~"
+    str-dup type
+    cr
+    ."   call "
+    str-dup type
+    cr
+    ."   add_sp 0" cr
+
+    \ funcall_  fn_name_ size
+    str-drop
+    drop
+;
+
+\ (call *{funcall})
+: gen-call ( stmt_ -- )
+    dup
+    \ stmt_ | stmt_
+    List-rest
+    \ stmt_ | funcall_
+    _gen-funcall
+    \ stmt_
+
+    drop
+;
+
 \ (_cmt {comment})
 : gen-vm-comment ( stmt_ -- )
     ."   _cmt "
@@ -179,6 +210,13 @@ include lib/json.fs
 
         else
             str-dup
+            s" call" str-eq
+        if
+            str-drop
+            gen-call
+
+        else
+            str-dup
             s" _cmt" str-eq
         if
             \ fn-def_ stmts_ stmt_ | s_ size
@@ -189,6 +227,7 @@ include lib/json.fs
 
         else
             panic
+        endif
         endif
         endif
         endif

@@ -142,8 +142,14 @@ create src-end_ 1 cells allot
 : kw? ( s_ size -- flag )
     str-dup
     \ s_ size | s_ size
-    s" func" str-eq if
+    s" call" str-eq if
         \ s_ size
+        str-drop
+        true exit
+    endif
+
+    str-dup
+    s" func" str-eq if
         str-drop
         true exit
     endif

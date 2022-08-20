@@ -304,3 +304,23 @@ node
     Node-get-list
     \ child_list_
 ;
+
+: List-rest ( list_ -- rest_list_ )
+    List-new
+    \ list_ newlist_
+    1 pick
+    \ list_ newlist_ | list_
+    List-len 1
+    \ list_ newlist_ | size 1
+    ?do
+        1 pick i
+        \ list_ newlist_ | list_ i
+        List-get
+        \ list_ newlist_ | node_
+        List-add-v2
+        \ list_ newlist_
+    loop
+
+    drop-1
+    \ newlist_
+;
