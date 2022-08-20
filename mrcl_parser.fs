@@ -327,7 +327,6 @@ create pos_ 1 cells allot
         \ stmt_ n
         List-add-int-v2
         \ stmt_
-
         s" ;" consume-sym
 
         \ stmt_
@@ -345,8 +344,8 @@ create pos_ 1 cells allot
 
     else
         \ (empty)
+        ." 348 failed to parse statement" cr
         0 peek Json-print
-        s" 324 failed to parse statement" type-e
         panic
     endif
 ;
@@ -380,6 +379,7 @@ create pos_ 1 cells allot
         List-add-int-v2
         \ stmt_
     endif
+
     s" ;" consume-sym
 ;
 
