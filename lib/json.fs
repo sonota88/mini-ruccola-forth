@@ -184,9 +184,9 @@
 
 : consume-str ( list_  s_ -- num-chars )
     dup
-    \ list_ s_ s_
+    \ list_ s_ | s_
     1 34 char-index ( find double quote at end of string )
-    \ list_ s_ index
+    \ list_ s_ | index
 
     1 pick
     \ list_ s_ index | s_

@@ -369,6 +369,33 @@ create pos_ 1 cells allot
     s" ;" consume-sym
 ;
 
+: parse-vm-comment ( -- stmt_ )
+    s" _cmt" consume-kw
+    s" (" consume-sym
+
+    \ incr-pos \ comment
+    0 peek incr-pos
+    \ t_
+    Token-get-val
+    \ s_ size
+
+    s" )" consume-sym
+    s" ;" consume-sym
+
+    \ s_ size
+    List-new
+    \ s_ size  stmt_
+    s" _cmt" List-add-str-v2
+    2 pick
+    2 pick
+    \ s_ size  stmt_ | s_ size
+    List-add-str-v2
+    \ s_ size  stmt_
+    drop-1
+    drop-1
+    \ stmt_
+;
+
 : parse-stmt ( -- stmt_ )
     0 peek s" return"
     \ t_  val_ size
@@ -383,11 +410,17 @@ create pos_ 1 cells allot
         parse-set
         \ stmt_
 
+    else 0 peek s" _cmt" Token-val-eq if
+        \ (empty)
+        parse-vm-comment
+        \ stmt_
+
     else
         \ (empty)
         ." 348 failed to parse statement" cr
         0 peek Json-print
         panic
+    endif
     endif
     endif
 ;

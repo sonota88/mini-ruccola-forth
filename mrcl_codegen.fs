@@ -67,6 +67,32 @@ include lib/json.fs
     drop
 ;
 
+\ (_cmt {comment})
+: gen-vm-comment ( stmt_ -- )
+    ."   _cmt "
+
+    1 List-get-str
+    \ s_ size
+
+    0 ?do
+        dup
+        i chars +
+        c@
+        dup 32 = if \ ' '
+            drop
+            126 emit \ '~'
+        else
+            emit
+        endif
+    loop
+
+    cr
+
+    \ s_
+    drop
+    \ (empty)
+;
+
 \ (var {name})
 \ (var {name} {initial-value})
 : gen-var ( stmt_ -- )
@@ -152,7 +178,18 @@ include lib/json.fs
             \ fn-def_ stmts_
 
         else
+            str-dup
+            s" _cmt" str-eq
+        if
+            \ fn-def_ stmts_ stmt_ | s_ size
+            str-drop
+            \ fn-def_ stmts_ stmt_
+            gen-vm-comment
+            \ fn-def_ stmts_
+
+        else
             panic
+        endif
         endif
         endif
         endif

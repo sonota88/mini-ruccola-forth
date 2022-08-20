@@ -166,6 +166,12 @@ create src-end_ 1 cells allot
         true exit
     endif
 
+    str-dup
+    s" _cmt" str-eq if
+        str-drop
+        true exit
+    endif
+
     \ s_ size
     str-drop
     false exit
@@ -218,6 +224,28 @@ create src-end_ 1 cells allot
     check-and-panic
     \ s_ index
     \ s_ num-chars
+;
+
+\ TODO mv to utils
+: consume-str-v2 ( s_ size -- s_ size )
+    1 pick
+    \ s_ size | s_
+    1 34 char-index ( find double quote at end of string )
+    \ s_ size | index
+
+    2 pick
+    \ s_ size  index | s_
+    1 chars +
+    \ s_ size  index | s_+1
+    1 pick
+    \ s_ size  index | s_+1 index
+    1 -
+    \ s_ size  index | s_+1 index-1
+
+    drop-2
+    drop-2
+    drop-2
+    \ s_+1 index-1
 ;
 
 : print-token ( lineno kind_ size s_ size -- )
@@ -301,6 +329,19 @@ create src-end_ 1 cells allot
     str-drop
 ;
 
+: print-str-token ( s_ size -- )
+    1 s" str"
+    \ s_ size | 1 kind_ size
+    4 pick
+    \ s_ size | 1 kind_ size  s_
+    4 pick
+    \ s_ size | 1 kind_ size  s_ size
+    print-token
+    \ s_ size
+
+    str-drop
+;
+
 : char-to-s ( c -- s_ size )
     s" X"
     \ c s_ size
@@ -369,6 +410,27 @@ create src-end_ 1 cells allot
             \ rest_ num-chars
             chars +
 
+        else dup c@ 34 = if \ '"'
+            \ rest_
+
+            dup 200
+            \ rest_ | rest_ dummy-size
+            consume-str-v2
+            \ rest_ | s_ size
+
+            str-dup
+            \ rest_ | s_ size | s_ size
+            print-str-token
+            \ rest_ | s_ size
+
+            drop-1
+            \ rest_ size
+            chars +
+            \ rest_+size
+            2 chars +
+            \ rest_+size+2
+            \ rest_
+
         else dup
             \ rest_ | rest_
             match-ident
@@ -409,6 +471,7 @@ create src-end_ 1 cells allot
         else
             s" 275 unexpected pattern" type-e
             panic
+        endif
         endif
         endif
         endif
