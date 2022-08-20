@@ -131,6 +131,60 @@ include lib/json.fs
     \ (empty)
 ;
 
+: gen-stmt ( stmt_ -- )
+    dup
+    \ stmt_ stmt_
+    0
+    \ stmt_ | stmt_ 0
+    List-get-str
+    \ stmt_ | s_ size
+    \         ^^^^^^^stmt_[0]
+
+    str-dup
+    \ stmt_ | s_ size | s_ size
+    s" return" str-eq
+    if
+        \ stmt_ | s_ size
+        str-drop
+        \ stmt_
+        gen-return
+        \ (empty)
+
+    else
+        str-dup
+        s" set" str-eq
+    if
+        \ stmt_ | s_ size
+        str-drop
+        \ stmt_
+        gen-set
+        \ (empty)
+
+    else
+        str-dup
+        s" call" str-eq
+    if
+        str-drop
+        gen-call
+
+    else
+        str-dup
+        s" _cmt" str-eq
+    if
+        \ stmt_ | s_ size
+        str-drop
+        \ stmt_
+        gen-vm-comment
+        \ (empty)
+
+    else
+        panic
+    endif
+    endif
+    endif
+    endif
+;
+
 \ (var {name})
 \ (var {name} {initial-value})
 : gen-var ( stmt_ -- )
@@ -198,49 +252,10 @@ include lib/json.fs
 
         else
             \ fn-def_ stmts_ stmt_ | s_ size
-            str-dup
-            \ fn-def_ stmts_ stmt_ | s_ size | s_ size
-            s" return" str-eq
-        if
-            \ fn-def_ stmts_ stmt_ | s_ size
             str-drop
             \ fn-def_ stmts_ stmt_
-            gen-return
+            gen-stmt
             \ fn-def_ stmts_
-
-        else
-            str-dup
-            s" set" str-eq
-        if
-            \ fn-def_ stmts_ stmt_ | s_ size
-            str-drop
-            \ fn-def_ stmts_ stmt_
-            gen-set
-            \ fn-def_ stmts_
-
-        else
-            str-dup
-            s" call" str-eq
-        if
-            str-drop
-            gen-call
-
-        else
-            str-dup
-            s" _cmt" str-eq
-        if
-            \ fn-def_ stmts_ stmt_ | s_ size
-            str-drop
-            \ fn-def_ stmts_ stmt_
-            gen-vm-comment
-            \ fn-def_ stmts_
-
-        else
-            panic
-        endif
-        endif
-        endif
-        endif
         endif
     loop
 
