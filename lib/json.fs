@@ -182,45 +182,6 @@
     \ node_ num-chars
 ;
 
-: consume-str ( list_  s_ -- num-chars )
-    dup
-    \ list_ s_ | s_
-    1 34 char-index ( find double quote at end of string )
-    \ list_ s_ | index
-
-    1 pick
-    \ list_ s_ index | s_
-    drop-2
-    \ list_ index | s_
-    1
-    \ list_ index | s_ start-pos
-    2 pick
-    \ list_ index | s_ start-pos index
-    substr
-    \ list_ index | s2_
-
-    2 pick
-    \ list_ index s2_ | list_
-    drop-3
-    \ index s2_ | list_
-    1 pick
-    \ index s2_ | list_ s2_
-    drop-2
-    \ index | list_ s2_
-    2 pick
-    \ index | list_ s2_ index
-    1 -
-    \ index | list_ s2_ content-len
-    
-    List-add-str-v2
-    \ index | list_
-
-    drop
-    \ index
-    1 +
-    \ num-chars
-;
-
 : Json-parse-list ( rest_ -- rest_ list_ ) recursive
     \ s_
 
@@ -343,13 +304,23 @@
             drop
             \ list_ s_
 
-            1 pick
-            1 pick
-            \ list_ s_ | list_ s_
-            consume-str
-            \ list_ s_ slen
+            dup 200
+            \ list_ s_ | s_ dummy-size
+            take-str
+            \ list_ s_ | s_ size
+            3 pick
+            \ list_ s_ | s_ size | list_
+            2 pick
+            2 pick
+            \ list_ s_ | s_ size | list_  s_ size
+            List-add-str-v3
+            \ list_ s_ | s_ size
 
+            drop-1
+            \ list_ s_ size
             chars +
+            \ list_ rest_
+            2 chars +
             \ list_ rest_
 
         else

@@ -226,28 +226,6 @@ create src-end_ 1 cells allot
     \ s_ num-chars
 ;
 
-\ TODO mv to utils
-: consume-str-v2 ( s_ size -- s_ size )
-    1 pick
-    \ s_ size | s_
-    1 34 char-index ( find double quote at end of string )
-    \ s_ size | index
-
-    2 pick
-    \ s_ size  index | s_
-    1 chars +
-    \ s_ size  index | s_+1
-    1 pick
-    \ s_ size  index | s_+1 index
-    1 -
-    \ s_ size  index | s_+1 index-1
-
-    drop-2
-    drop-2
-    drop-2
-    \ s_+1 index-1
-;
-
 : print-token ( lineno kind_ size s_ size -- )
     List-new
     \ lineno kind_ size s_ size list_
@@ -415,7 +393,7 @@ create src-end_ 1 cells allot
 
             dup 200
             \ rest_ | rest_ dummy-size
-            consume-str-v2
+            take-str
             \ rest_ | s_ size
 
             str-dup
