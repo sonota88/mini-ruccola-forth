@@ -343,6 +343,32 @@ create pos_ 1 cells allot
     endif
 ;
 
+: parse-set ( -- stmt_ )
+    List-new
+    \ stmt_
+
+    s" set" consume-kw
+    s" set" List-add-str-v2
+
+    0 peek
+    \ stmt_ | t_
+    Token-get-val
+    \ stmt_ | s_ size
+    List-add-str-v2
+    \ stmt_
+    incr-pos \ var-name TODO
+    \ stmt_
+
+    s" =" consume-sym
+
+    parse-expr
+    \ stmt_ expr_
+    List-add-v2
+    \ stmt_
+
+    s" ;" consume-sym
+;
+
 : parse-stmt ( -- stmt_ )
     0 peek s" return"
     \ t_  val_ size
@@ -350,13 +376,19 @@ create pos_ 1 cells allot
     if
         \ (empty)
         parse-return
-        \ return_
+        \ stmt_
+
+    else 0 peek s" set" Token-val-eq if
+        \ (empty)
+        parse-set
+        \ stmt_
 
     else
         \ (empty)
         ." 348 failed to parse statement" cr
         0 peek Json-print
         panic
+    endif
     endif
 ;
 
@@ -373,7 +405,7 @@ create pos_ 1 cells allot
     \ stmt_ | s_ size
     List-add-str-v2
     \ stmt_
-    incr-pos \ var-name
+    incr-pos \ var-name TODO
     \ stmt_
 
     0 peek

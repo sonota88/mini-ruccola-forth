@@ -48,6 +48,21 @@ include lib/json.fs
     drop
 ;
 
+\ (set {name} {initial-value})
+: gen-set ( stmt_ -- )
+    dup
+    \ stmt_ | stmt_
+    2 List-get
+    \ stmt_ | expr_
+
+    gen-expr
+    \ stmt_
+
+    ."   cp reg_a [bp:-1]" cr \ TODO
+
+    drop
+;
+
 \ (var {name})
 \ (var {name} {initial-value})
 : gen-var ( stmt_ -- )
@@ -60,6 +75,7 @@ include lib/json.fs
         \ stmt_ | stmt_
         2 List-get
         \ stmt_ | expr_
+
         gen-expr
         \ stmt_
 
@@ -111,6 +127,7 @@ include lib/json.fs
             \ fn-def_ stmts_ | stmt_
             gen-var
             \ fn-def_ stmts_
+
         else
             \ fn-def_ stmts_ stmt_ | s_ size
             str-dup
@@ -122,8 +139,20 @@ include lib/json.fs
             \ fn-def_ stmts_ stmt_
             gen-return
             \ fn-def_ stmts_
+
+        else
+            str-dup
+            s" set" str-eq
+        if
+            \ fn-def_ stmts_ stmt_ | s_ size
+            str-drop
+            \ fn-def_ stmts_ stmt_
+            gen-set
+            \ fn-def_ stmts_
+
         else
             panic
+        endif
         endif
         endif
     loop

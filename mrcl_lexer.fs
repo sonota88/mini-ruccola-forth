@@ -155,6 +155,12 @@ create src-end_ 1 cells allot
     endif
 
     str-dup
+    s" set" str-eq if
+        str-drop
+        true exit
+    endif
+
+    str-dup
     s" var" str-eq if
         str-drop
         true exit
