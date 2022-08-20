@@ -213,7 +213,7 @@ create src-end_ 1 cells allot
 ;
 
 \ TODO mv to utils
-: consume-int-v2 ( s_ size -- s_ size )
+: take-int ( s_ size -- s_ size )
     str-dup
     \ s_ size  s_ size
     drop-2
@@ -400,7 +400,7 @@ create src-end_ 1 cells allot
             \ rest_
             dup 16
             \ rest_ | rest_ dummy-size
-            consume-int-v2
+            take-int
             \ rest_ | s_ num-chars
             str-dup
             \ rest_ | s_ num-chars | s_ num-chars
