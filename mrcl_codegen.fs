@@ -12,6 +12,24 @@ include lib/json.fs
     ."   pop bp" cr
 ;
 
+\ --------------------------------
+
+: gen-expr ( expr_ -- )
+    dup
+    \ expr_ expr_
+    Node-get-type Node-type-int = if
+        \ expr_
+        Node-get-int
+        \ n
+        ."   cp "
+        print-int
+        ."  reg_a" cr
+        \ (empty)
+    else
+        panic \ TODO
+    endif
+;
+
 \ (return)
 \ (return {expr})
 : gen-return ( stmt_ -- )
@@ -19,11 +37,7 @@ include lib/json.fs
         \ stmt_
         1 List-get
         \ stmt_ node_
-        Node-get-int \ TODO switch by kind
-        \ stmt_ n
-        ."   cp "
-        print-int
-        ."  reg_a" cr
+        gen-expr
         \ stmt_
     endif
 
@@ -44,12 +58,10 @@ include lib/json.fs
     3 = if
         dup
         \ stmt_ | stmt_
-        2 List-get-int \ TODO non-int case
-        \ stmt_ | n
-
-        ."   cp "
-        print-int
-        ."  reg_a" cr
+        2 List-get
+        \ stmt_ | expr_
+        gen-expr
+        \ stmt_
 
         ."   cp reg_a [bp:-1]" cr \ TODO
     endif
