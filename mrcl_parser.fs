@@ -297,6 +297,20 @@ create pos_ 1 cells allot
 
 \ --------------------------------
 
+: parse-expr ( -- expr_node_ )
+    0 peek incr-pos
+    \ t_
+    dup s" int" Token-kind-eq if
+        \ t_
+        Token-get-intval
+        \ n
+        Node-new-int
+        \ node_
+    else
+        panic \ TODO
+    endif
+;
+
 : parse-return ( -- stmt_ )
     s" return" consume-kw
 
@@ -319,13 +333,9 @@ create pos_ 1 cells allot
         List-add-str-v2
         \ stmt_
 
-        0 peek incr-pos
-        \ stmt_ t_
-        Token-get-val
-        \ stmt_ s_ size
-        parse-int
-        \ stmt_ n
-        List-add-int-v2
+        parse-expr
+        \ stmt_ expr_
+        List-add-v2
         \ stmt_
         s" ;" consume-sym
 
@@ -371,12 +381,9 @@ create pos_ 1 cells allot
     s" =" Token-val-eq if
         s" =" consume-sym
 
-        0 peek
-        incr-pos
-
-        Token-get-intval
-        \ stmt_ n
-        List-add-int-v2
+        parse-expr
+        \ stmt_ expr_
+        List-add-v2
         \ stmt_
     endif
 
