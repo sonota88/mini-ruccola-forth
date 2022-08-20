@@ -195,6 +195,11 @@ include lib/json.fs
         endif
     loop
 
+    \ fn-def_ stmts_
+    drop
+    drop
+    \ (empty)
+
     asm-epilogue
 
     ."   ret" cr
@@ -203,12 +208,13 @@ include lib/json.fs
 : gen-top-stmts ( top-stmts_ -- )
     dup List-len
     \ tss_ size
-    1 do \ 1 <= i < size
+    1 ?do \ 1 <= i < size
         dup i
         \ tss_ | tss_ i
         List-get-list
         \ tss_ | top-stmt_
         gen-func-def
+        \ tss_
     loop
 ;
 

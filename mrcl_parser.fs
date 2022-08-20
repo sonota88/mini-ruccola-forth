@@ -4,10 +4,38 @@ include lib/json.fs
 
 \ --------------------------------
 
+\ トークンの配列の要素の先頭アドレス
+create tokens-pos_ 1 cells allot
+
+: tokens-pos! ( size -- )
+    tokens-pos_ !
+;
+
+: tokens-pos@ ( -- size )
+    tokens-pos_ @
+;
+
+\ --------------------------------
+
+\ トークンの数
 create tokens-size_ 1 cells allot
 
 : tokens-size! ( size -- )
     tokens-size_ !
+;
+
+: tokens-size@ ( -- size )
+    tokens-size_ @
+;
+
+: tokens-size-incr ( -- )
+    tokens-size@
+    1 +
+    tokens-size!
+;
+
+: tokens-size-init ( -- )
+    0 tokens-size!
 ;
 
 \ --------------------------------
@@ -44,6 +72,8 @@ create read-tokens-end_ 1 cells allot
     0
     \ rest_ ti
 
+    tokens-size-init
+
     begin
         1 pick
         \ rest_ ti | rest_
@@ -51,7 +81,7 @@ create read-tokens-end_ 1 cells allot
             \ rest_ ti
             dup
             \ rest_ ti | ti
-            tokens-size!
+            tokens-pos!
             \ rest_ ti
 
             drop drop exit
@@ -106,7 +136,13 @@ create read-tokens-end_ 1 cells allot
         drop-2
         drop-2
         \ rest_next_ ti_next
+
+        tokens-size-incr
+
+        \ rest_next_ ti_next
     again
+
+    panic \ must not happen
 ;
 
 \ --------------------------------
@@ -548,12 +584,15 @@ create pos_ 1 cells allot
     s" top_stmts" List-add-str-v2
     \ top_stmts_
 
-    \ -->>
-    parse-func-def
-    \ top_stmts_ fn_
-    List-add-list
-    \ top_stmts_
-    \ <<--
+    begin
+        \ top_stmts_
+        parse-func-def
+        \ top_stmts_ fn_
+        List-add-list
+        \ top_stmts_
+
+        tokens-size@ pos@ <=
+    until
 
     \ top_stmts_
 ;
