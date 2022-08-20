@@ -48,17 +48,21 @@ include lib/json.fs
     drop
 ;
 
+: _gen-set ( expr_ -- )
+    gen-expr
+    \ (empty)
+
+    ."   cp reg_a [bp:-1]" cr \ TODO
+;
+
 \ (set {name} {initial-value})
 : gen-set ( stmt_ -- )
     dup
     \ stmt_ | stmt_
     2 List-get
     \ stmt_ | expr_
-
-    gen-expr
+    _gen-set
     \ stmt_
-
-    ."   cp reg_a [bp:-1]" cr \ TODO
 
     drop
 ;
@@ -75,11 +79,8 @@ include lib/json.fs
         \ stmt_ | stmt_
         2 List-get
         \ stmt_ | expr_
-
-        gen-expr
+        _gen-set
         \ stmt_
-
-        ."   cp reg_a [bp:-1]" cr \ TODO
     endif
 
     drop
