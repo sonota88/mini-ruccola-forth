@@ -48,19 +48,26 @@ include lib/json.fs
     drop
 ;
 
-: _gen-set ( expr_ -- )
+: _gen-set ( dest expr_ -- )
+    drop-1 \ TODO
+    \ expr_
+
     gen-expr
     \ (empty)
 
-    ."   cp reg_a [bp:-1]" cr \ TODO
+    ."   cp reg_a [bp:"
+    -1 print-int \ TODO
+    ." ]" cr
 ;
 
 \ (set {name} {initial-value})
 : gen-set ( stmt_ -- )
-    dup
-    \ stmt_ | stmt_
+    0 \ TODO dummy
+    \ stmt_ | dest
+    1 pick
+    \ stmt_ | dest stmt_
     2 List-get
-    \ stmt_ | expr_
+    \ stmt_ | dest expr_
     _gen-set
     \ stmt_
 
@@ -132,10 +139,13 @@ include lib/json.fs
     dup List-len
     \ stmt_ size
     3 = if
-        dup
-        \ stmt_ | stmt_
+        \ stmt_
+        0 \ TODO dummy
+        \ stmt_ | dest
+        1 pick
+        \ stmt_ | dest stmt_
         2 List-get
-        \ stmt_ | expr_
+        \ stmt_ | dest expr_
         _gen-set
         \ stmt_
     endif
