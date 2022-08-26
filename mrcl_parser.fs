@@ -333,6 +333,20 @@ create pos_ 1 cells allot
 
 \ --------------------------------
 
+: parse-args ( -- args_ )
+    List-new
+    \ args_
+
+    0 peek
+    s" )" Token-val-eq if
+        \ args_
+    else
+        s" a" List-add-str-v2
+        \ args_
+        incr-pos
+    endif
+;
+
 : parse-expr ( -- expr_node_ )
     0 peek incr-pos
     \ t_
@@ -544,12 +558,13 @@ create pos_ 1 cells allot
 
     \ ----------------
 
-    List-new
+    s" (" consume-sym
+
+    parse-args
     \ fn_ fn-arg-names_
     List-add-list
     \ fn_
 
-    s" (" consume-sym
     s" )" consume-sym
 
     \ ----------------
