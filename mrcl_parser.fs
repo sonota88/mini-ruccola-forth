@@ -648,7 +648,7 @@ create pos_ 1 cells allot
 
     parse-args
     \ fn_ fn-arg-names_
-    List-add-list
+    List-add-list-1
     \ fn_
 
     s" )" consume-sym
@@ -678,13 +678,13 @@ create pos_ 1 cells allot
                 \ fn_ stmts_
                 parse-var
                 \ fn_ stmts_ | stmt_
-                List-add-list
+                List-add-list-1
                 \ fn_ stmts_
 
             else
                 parse-stmt
                 \ fn_ stmts_ stmt_
-                List-add-list
+                List-add-list-1
                 \ fn_ stmts_
 
             endif
@@ -695,7 +695,7 @@ create pos_ 1 cells allot
     until
 
     \ fn_ stmts_
-    List-add-list
+    List-add-list-1
     \ fn_
 
     s" }" consume-sym
@@ -716,7 +716,7 @@ create pos_ 1 cells allot
         \ top_stmts_
         parse-func-def
         \ top_stmts_ fn_
-        List-add-list
+        List-add-list-1
         \ top_stmts_
 
         tokens-size@ pos@ <=

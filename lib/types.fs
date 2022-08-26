@@ -168,16 +168,14 @@ node
 
     dup Node-type-int = if
         ." int"
+    else dup Node-type-str = if
+        ." str"
+    else dup Node-type-list = if
+        ." list"
     else
-        dup Node-type-str = if
-            ." str"
-        else
-            dup Node-type-list = if
-                ." list"
-            else
-                ." ?"
-            endif
-        endif
+        ." ?"
+    endif
+    endif
     endif
     \ node_ type
     cr
@@ -186,24 +184,22 @@ node
     dup Node-type-int = if
         \ node_ type
         drop
-        Node-get-int
-        print-int
+        Node-get-int print-int
+
+    else dup Node-type-str = if
+        \ node_ type
+        drop
+        Node-get-str type
+
+    else dup Node-type-list = if
+        \ node_ type
+        drop drop
+        ." [...]"
+
     else
-        dup Node-type-str = if
-            \ node_ type
-            drop
-            Node-get-str
-            type
-        else
-            dup Node-type-list = if
-                \ node_ type
-                drop
-                drop
-                ." [...]"
-            else
-                ." ?"
-            endif
-        endif
+        ." ?"
+    endif
+    endif
     endif
     
     cr
@@ -311,15 +307,15 @@ node
     \ list_
 ;
 
-: List-add-str-v3 ( list_ s_ len -- )
+: List-add-str-v3 ( list_ s_ len -- ) \ TODO rename -0
     List-add-str-1
     \ list_
     drop
     \ (empty)
 ;
 
-: List-add-list ( list_parent_ list_child_ -- list_parent_ )
-    \ ." List-add-list" cr
+: List-add-list-1 ( list_parent_ list_child_ -- list_parent_ )
+    \ ." List-add-list-1" cr
     
     Node-new-list
     \ list_parent_ node_
@@ -327,12 +323,12 @@ node
     \ list_parent_
 ;
 
-: List-add-list-v2 ( list_parent_ list_child_ -- )
-    List-add-list
-    \ list_parent_
-    drop
-    \ (empty)
-;
+\ : List-add-list-0 ( list_parent_ list_child_ -- )
+\     List-add-list-0
+\     \ list_parent_
+\     drop
+\     \ (empty)
+\ ;
 
 : List-get ( list_ n -- node_ )
     1 +

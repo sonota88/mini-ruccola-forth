@@ -218,7 +218,7 @@
             \ list_ s_ | rest_ inner-list_ | list_
             1 pick
             \ list_ s_ | rest_ inner-list_ | list_ inner-list_
-            List-add-list
+            List-add-list-1
             \ list_ s_ | rest_ inner-list_ | list_
 
             drop drop
