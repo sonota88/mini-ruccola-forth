@@ -154,6 +154,63 @@ node
     Node-get-val
 ;
 
+: Node-dump ( node_ -- )
+    dup
+    \ node_ node_
+    Node-get-type
+    \ node_ type
+    ." Node {" cr
+
+    ."   kind: "
+    dup print-int 
+    \ node_ type
+    ."  "
+
+    dup Node-type-int = if
+        ." int"
+    else
+        dup Node-type-str = if
+            ." str"
+        else
+            dup Node-type-list = if
+                ." list"
+            else
+                ." ?"
+            endif
+        endif
+    endif
+    \ node_ type
+    cr
+
+    ."   val: "
+    dup Node-type-int = if
+        \ node_ type
+        drop
+        Node-get-int
+        print-int
+    else
+        dup Node-type-str = if
+            \ node_ type
+            drop
+            Node-get-str
+            type
+        else
+            dup Node-type-list = if
+                \ node_ type
+                drop
+                drop
+                ." [...]"
+            else
+                ." ?"
+            endif
+        endif
+    endif
+    
+    cr
+
+    ." }" cr
+;
+
 \ --------------------------------
 
 : List-new ( -- list_ )
@@ -223,8 +280,8 @@ node
     drop
 ;
 
-: List-add-int-v2 ( list_ n -- list_ )
-    \ ." List-add-int-v2" cr
+: List-add-int-1 ( list_ n -- list_ )
+    \ ." List-add-int-1" cr
     
     Node-new-int
     \ list_ node_
@@ -246,7 +303,7 @@ node
     \ list_
 ;
 
-: List-add-str-v2 ( list_ s_ len -- list_ )
+: List-add-str-1 ( list_ s_ len -- list_ )
     \ list_ s_ len
     Node-new-str
     \ list_ node_
@@ -255,7 +312,7 @@ node
 ;
 
 : List-add-str-v3 ( list_ s_ len -- )
-    List-add-str-v2
+    List-add-str-1
     \ list_
     drop
     \ (empty)

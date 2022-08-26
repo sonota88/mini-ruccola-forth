@@ -190,33 +190,31 @@ create src-end_ 1 cells allot
     endif
 
     dup 41 = if \ ')'
-        drop
-        true exit
+        drop true exit
+    endif
+
+    dup 43 = if \ '+'
+        drop true exit
     endif
 
     dup 44 = if \ ','
-        drop
-        true exit
+        drop true exit
     endif
 
     dup 59 = if \ ';'
-        drop
-        true exit
+        drop true exit
     endif
 
     dup 61 = if \ '='
-        drop
-        true exit
+        drop true exit
     endif
 
     dup 123 = if \ '{'
-        drop
-        true exit
+        drop true exit
     endif
 
     dup 125 = if \ '}'
-        drop
-        true exit
+        drop true exit
     endif
 
     drop
@@ -243,19 +241,19 @@ create src-end_ 1 cells allot
 
     5 pick
     \ lineno kind_ size s_ size | list_ lineno
-    List-add-int-v2
+    List-add-int-1
     \ lineno kind_ size s_ size | list_
 
     4 pick
     4 pick
     \ lineno kind_ size s_ size | list_  kind_ size
-    List-add-str-v2
+    List-add-str-1
     \ lineno kind_ size s_ size | list_
 
     2 pick
     2 pick
     \ lineno kind_ size s_ size | list_  s_ size
-    List-add-str-v2
+    List-add-str-1
     \ lineno kind_ size s_ size | list_
 
     Json-print-oneline

@@ -161,7 +161,7 @@ create pos_ 1 cells allot
     0 pos!
 ;
 
-: incr-pos ( -- )
+: pos++ ( -- )
     pos@
     \ pos
     1 +
@@ -302,7 +302,7 @@ create pos_ 1 cells allot
     str-drop
     \ (empty)
 
-    incr-pos
+    pos++
 ;
 
 : consume-kw ( s_ size -- )
@@ -369,7 +369,7 @@ create pos_ 1 cells allot
     \ args_ node_
     List-add-1
     \ args_
-    incr-pos
+    pos++
 
     begin
         0 peek
@@ -382,7 +382,7 @@ create pos_ 1 cells allot
             \ args_ node_
             List-add-1
             \ args_
-            incr-pos
+            pos++
             
             false \ continue
         else
@@ -392,8 +392,31 @@ create pos_ 1 cells allot
     until
 ;
 
-: parse-expr ( -- expr_node_ )
-    0 peek incr-pos
+: make-binop-expr ( op_ size  lhs_ rhs_ -- expr_ )
+    \ op_ size  lhs_ rhs_
+    List-new
+    \ op_ size  lhs_ rhs_ | list_
+
+    4 pick
+    4 pick
+    List-add-str-1
+    \ op_ size  lhs_ rhs_ | list_
+
+    2 pick List-add-1
+    \ op_ size  lhs_ rhs_ | list_
+    1 pick List-add-1
+    \ op_ size  lhs_ rhs_ | list_
+    Node-new-list
+    \ op_ size  lhs_ rhs_ | node_
+    drop-1
+    drop-1
+    drop-1
+    drop-1
+    \ node_
+;
+
+: parse-expr ( -- expr_node_ ) recursive
+    0 peek pos++
     \ t_
     dup s" int" Token-kind-eq if
         \ t_
@@ -401,41 +424,66 @@ create pos_ 1 cells allot
         \ n
         Node-new-int
         \ node_
+    else dup s" ident" Token-kind-eq if
+        \ t_
+        Token-get-val
+        \ s_ size
+        Node-new-str
+        \ node_
     else
+        ." 428 unexpected token kind"
         panic \ TODO
     endif
+    endif
+
+    \ node_
+    0 peek s" +" Token-val-eq if
+        \ node_
+        pos++
+        parse-expr
+        \ node_ rhs_
+
+        s" +"
+        \ node_ rhs_ | op_ size
+        3 pick
+        \ node_ rhs_ | op_ size  lhs_
+        3 pick
+        \ node_ rhs_ | op_ size  lhs_ rhs_
+        make-binop-expr
+        \ node_ rhs_ | expr_
+        drop-1
+        drop-1
+
+        \ new_node_
+    endif
+
+    \ node_
 ;
 
 : parse-return ( -- stmt_ )
     s" return" consume-kw
 
+    List-new
+    \ stmt_
+    s" return"
+    \ stmt_  s_ size
+    List-add-str-1
+    \ stmt_
+
     0 peek
-    \ t_
+    \ stmt_ t_
     s" ;" Token-val-eq if
-        s" ;" consume-sym
-
-        List-new
-        \ stmt_
-        s" return"
-        \ stmt_  s_ size
-        List-add-str-v2
-        \ stmt_
+        ( pass )
     else
-        List-new
         \ stmt_
-        s" return"
-        \ stmt_  s_ size
-        List-add-str-v2
-        \ stmt_
-
         parse-expr
         \ stmt_ expr_
         List-add-1
         \ stmt_
-        s" ;" consume-sym
-
-        \ stmt_
     endif
+
+    s" ;" consume-sym
+    \ stmt_
 ;
 
 : parse-set ( -- stmt_ )
@@ -443,15 +491,15 @@ create pos_ 1 cells allot
     \ stmt_
 
     s" set" consume-kw
-    s" set" List-add-str-v2
+    s" set" List-add-str-1
 
     0 peek
     \ stmt_ | t_
     Token-get-val
     \ stmt_ | s_ size
-    List-add-str-v2
+    List-add-str-1
     \ stmt_
-    incr-pos \ var-name TODO
+    pos++ \ var-name TODO
     \ stmt_
 
     s" =" consume-sym
@@ -469,12 +517,12 @@ create pos_ 1 cells allot
     \ stmt_
 
     s" call" consume-kw
-    s" call" List-add-str-v2
+    s" call" List-add-str-1
 
-    0 peek incr-pos
+    0 peek pos++
     Token-get-val
     \ stmt_  fn-name_ size
-    List-add-str-v2
+    List-add-str-1
     \ stmt_
 
     s" (" consume-sym
@@ -493,8 +541,8 @@ create pos_ 1 cells allot
     s" _cmt" consume-kw
     s" (" consume-sym
 
-    \ incr-pos \ comment
-    0 peek incr-pos
+    \ pos++ \ comment
+    0 peek pos++
     \ t_
     Token-get-val
     \ s_ size
@@ -505,11 +553,11 @@ create pos_ 1 cells allot
     \ s_ size
     List-new
     \ s_ size  stmt_
-    s" _cmt" List-add-str-v2
+    s" _cmt" List-add-str-1
     2 pick
     2 pick
     \ s_ size  stmt_ | s_ size
-    List-add-str-v2
+    List-add-str-1
     \ s_ size  stmt_
     drop-1
     drop-1
@@ -524,22 +572,9 @@ create pos_ 1 cells allot
         \ (empty)
         parse-return
         \ stmt_
-
-    else 0 peek s" set" Token-val-eq if
-        \ (empty)
-        parse-set
-        \ stmt_
-
-    else 0 peek s" call" Token-val-eq if
-        \ (empty)
-        parse-call
-        \ stmt_
-
-    else 0 peek s" _cmt" Token-val-eq if
-        \ (empty)
-        parse-vm-comment
-        \ stmt_
-
+    else 0 peek s" set"  Token-val-eq if parse-set
+    else 0 peek s" call" Token-val-eq if parse-call
+    else 0 peek s" _cmt" Token-val-eq if parse-vm-comment
     else
         \ (empty)
         ." 348 failed to parse statement" cr
@@ -549,6 +584,8 @@ create pos_ 1 cells allot
     endif
     endif
     endif
+
+    \ stmt_
 ;
 
 : parse-var ( -- stmt_ )
@@ -556,15 +593,15 @@ create pos_ 1 cells allot
     \ stmt_
 
     s" var" consume-kw
-    s" var" List-add-str-v2
+    s" var" List-add-str-1
 
     0 peek
     \ stmt_ | t_
     Token-get-val
     \ stmt_ | s_ size
-    List-add-str-v2
+    List-add-str-1
     \ stmt_
-    incr-pos \ var-name TODO
+    pos++ \ var-name TODO
     \ stmt_
 
     0 peek
@@ -587,7 +624,7 @@ create pos_ 1 cells allot
 
     \ ----------------
 
-    s" func" List-add-str-v2
+    s" func" List-add-str-1
     \ fn_
 
     s" func" consume-kw
@@ -600,10 +637,10 @@ create pos_ 1 cells allot
     Token-get-val
     \ fn_ | s_ size
 
-    List-add-str-v2
+    List-add-str-1
     \ fn_
 
-    incr-pos
+    pos++
 
     \ ----------------
 
@@ -672,7 +709,7 @@ create pos_ 1 cells allot
     List-new
     \ top_stmts_
 
-    s" top_stmts" List-add-str-v2
+    s" top_stmts" List-add-str-1
     \ top_stmts_
 
     begin

@@ -25,8 +25,27 @@ include lib/json.fs
         print-int
         ."  reg_a" cr
         \ (empty)
+    else dup Node-get-type Node-type-list = if
+        \ expr_
+        Node-get-list
+        \ list_
+        drop
+
+        \ TODO
+        ."   cp 1 reg_a" cr
+        ."   push reg_a" cr
+        ."   cp 2 reg_a" cr
+        ."   push reg_a" cr
+        ."   pop reg_b" cr
+        ."   pop reg_a" cr
+        ."   add_ab" cr
     else
+        \ expr_
+        Node-get-type
+        cr .s cr \ @@@@@@@@@@@@@@@@@@ TODO
+        ." 33 unsupported expr type"
         panic \ TODO
+    endif
     endif
 ;
 
