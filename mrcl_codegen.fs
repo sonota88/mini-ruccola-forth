@@ -14,7 +14,13 @@ include lib/json.fs
 
 \ --------------------------------
 
-: gen-expr ( expr_ -- )
+: gen-expr-add ( -- )
+    ."   pop reg_b" cr
+    ."   pop reg_a" cr
+    ."   add_ab" cr
+;
+
+: gen-expr ( expr_ -- ) recursive
     dup
     \ expr_ expr_
     Node-get-type Node-type-int = if
@@ -25,26 +31,53 @@ include lib/json.fs
         print-int
         ."  reg_a" cr
         \ (empty)
+    else dup Node-get-type Node-type-str = if
+        ."   cp [bp:-1] reg_a" cr \ TODO
+
+        \ expr_
+        drop
     else dup Node-get-type Node-type-list = if
         \ expr_
         Node-get-list
         \ list_
-        drop
 
-        \ TODO
-        ."   cp 1 reg_a" cr
+        ( lhs )
+        dup 1 List-get
+        \ list_ | expr_
+        gen-expr
+        \ list_
         ."   push reg_a" cr
-        ."   cp 2 reg_a" cr
+
+        ( rhs )
+        dup 2 List-get
+        \ list_ | expr_
+        gen-expr
+        \ list_
         ."   push reg_a" cr
-        ."   pop reg_b" cr
-        ."   pop reg_a" cr
-        ."   add_ab" cr
+        \ list_
+
+        dup 0
+        \ list_ | list_ 0
+        List-get-str
+        str-dup
+        \ list_ s_ size | s_ size
+        s" +" str-eq
+        if
+            \ list_  s_ size
+            gen-expr-add
+            \ list_  s_ size
+            str-drop
+            drop
+            \ (empty)
+        else
+            ." 46"
+            panic
+        endif
     else
         \ expr_
-        Node-get-type
-        cr .s cr \ @@@@@@@@@@@@@@@@@@ TODO
         ." 33 unsupported expr type"
-        panic \ TODO
+        panic
+    endif
     endif
     endif
 ;
