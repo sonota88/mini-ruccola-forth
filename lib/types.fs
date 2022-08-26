@@ -173,7 +173,20 @@ node
     0 + @
 ;
 
-: List-add-v1 ( list_ node_ -- list_ )
+: List-increment-size ( list_ -- )
+    dup
+    \ list_ list_
+    List-len
+    \ list_ size
+    1 +
+    \ list_ size+1
+    swap
+    \ size+1 list_
+    ! ( set new size )
+    \
+;
+
+: List-add-1 ( list_ node_ -- list_ )
     swap
     \ node_ list_
 
@@ -198,23 +211,6 @@ node
 
     swap drop
     \ list_
-;
-
-: List-increment-size ( list_ -- )
-    dup
-    \ list_ list_
-    List-len
-    \ list_ size
-    1 +
-    \ list_ size+1
-    swap
-    \ size+1 list_
-    ! ( set new size )
-    \
-;
-
-: List-add-v2 ( list_ node_ -- list_ )
-    List-add-v1
 
     dup
     \ list_ list_
@@ -222,12 +218,17 @@ node
     \ list_
 ;
 
+: List-add-0 ( list_ node_ -- )
+    List-add-1
+    drop
+;
+
 : List-add-int-v2 ( list_ n -- list_ )
     \ ." List-add-int-v2" cr
     
     Node-new-int
     \ list_ node_
-    List-add-v2
+    List-add-1
     \ list_
 ;
 
@@ -241,7 +242,7 @@ node
     \ list_ node_
     \ 100 dump panic
 
-    List-add-v2
+    List-add-1
     \ list_
 ;
 
@@ -249,7 +250,7 @@ node
     \ list_ s_ len
     Node-new-str
     \ list_ node_
-    List-add-v2
+    List-add-1
     \ list_
 ;
 
@@ -265,7 +266,7 @@ node
     
     Node-new-list
     \ list_parent_ node_
-    List-add-v2
+    List-add-1
     \ list_parent_
 ;
 
@@ -305,7 +306,7 @@ node
     \ child_list_
 ;
 
-: List-add-all-nodrop ( list1_ list2_ -- list1_ )
+: List-add-all-1 ( list1_ list2_ -- list1_ )
     dup List-len 0
     \ list1_ list2_ | size 0
     ?do
@@ -318,7 +319,7 @@ node
         \ list1_ list2_ | node_ list1_
         swap
         \ list1_ list2_ | list1_ node_
-        List-add-v2
+        List-add-1
         \ list1_ list2_ | list1_
         drop
         \ list1_ list2_
@@ -339,10 +340,44 @@ node
         \ list_ newlist_ | list_ i
         List-get
         \ list_ newlist_ | node_
-        List-add-v2
+        List-add-1
         \ list_ newlist_
     loop
 
+    drop-1
+    \ newlist_
+;
+
+: List-reverse ( list_ -- reversed-list_ )
+    List-new
+    \ list_ newlist_
+    1 pick
+    \ list_ newlist_ | list_
+    List-len
+    \ list_ newlist_ size
+    dup 0
+    \ list_ newlist_ size | size 0
+    ?do
+        \ list_ newlist_ size
+        2 pick
+        \ list_ newlist_ size | list_
+        1 pick i
+        \ list_ newlist_ size | list_ size i
+        -
+        \ list_ newlist_ size | list_ size-i
+        1 -
+        \ list_ newlist_ size | list_ size-i-1
+        List-get
+        \ list_ newlist_ size | node_
+        2 pick
+        \ list_ newlist_ size | node_ newlist_
+        swap
+        \ list_ newlist_ size | newlist_ node_
+        List-add-0
+        \ list_ newlist_ size
+    loop
+
+    drop
     drop-1
     \ newlist_
 ;

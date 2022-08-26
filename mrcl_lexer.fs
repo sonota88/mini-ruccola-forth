@@ -194,6 +194,11 @@ create src-end_ 1 cells allot
         true exit
     endif
 
+    dup 44 = if \ ','
+        drop
+        true exit
+    endif
+
     dup 59 = if \ ';'
         drop
         true exit

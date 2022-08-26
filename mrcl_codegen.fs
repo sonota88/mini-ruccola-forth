@@ -78,32 +78,25 @@ include lib/json.fs
 : _gen-funcall ( funcall_ -- )
     dup List-rest
     \ funcall_ args_
-    \ ." 81" Json-print bye
+    List-reverse
+    \ funcall_ args-r_
     dup List-len
-    \ funcall_ args_ num-args
-    dup 0
-    \ funcall_ args_ num-args | num-args 0
+    \ funcall_ args-r_ num-args
+    0
+    \ funcall_ args-r_ | num-args 0
     ?do
-        \ funcall_ args_ num-args
+        \ funcall_ args-r_
         dup i
-        \ funcall_ args_ num-args | num-args i
-        -
-        1 -
-        \ funcall_ args_ num-args | size-i
-        \ funcall_ args_ num-args | i2
-        2 pick
-        \ funcall_ args_ num-args | i2 | args_
-        1 pick
-        \ funcall_ args_ num-args | i2 | args_ i2
+        \ funcall_ args-r_ | args-r_ i
         List-get
-        \ funcall_ args_ num-args | i2 | node_
+        \ funcall_ args-r_ | node_
         gen-expr
-        \ funcall_ args_ num-args | i2
+        \ funcall_ args-r_
         ."   push reg_a" cr
-        drop
-        \ funcall_ args_ num-args
+        \ funcall_ args-r_
     loop
-    drop drop
+    drop
+    \ funcall_
 
     dup 0 List-get-str
     \ funcall_  fn_name_ size

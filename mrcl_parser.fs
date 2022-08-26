@@ -333,6 +333,28 @@ create pos_ 1 cells allot
 
 \ --------------------------------
 
+: parse-arg ( -- arg_ )
+    0 peek
+    \ t_
+    dup s" ident" Token-kind-eq if
+        \ t_
+        Token-get-val
+        \ s_ size
+        Node-new-str
+        \ node_
+    else dup s" int" Token-kind-eq if
+        \ t_
+        Token-get-intval
+        \ n
+        Node-new-int
+        \ node_
+    else
+        ." 352 unsupported"
+        panic
+    endif
+    endif
+;
+
 : parse-args ( -- args_ )
     List-new
     \ args_
@@ -340,29 +362,34 @@ create pos_ 1 cells allot
     0 peek
     s" )" Token-val-eq if
         \ args_
-    else
-        0 peek
-        \ args_ | t_
-        dup s" ident" Token-kind-eq if
-            \ args_ t_
-            Token-get-val
-            \ args_  s_ size
-            List-add-str-v2
-            \ args_
-            incr-pos
-        else dup s" int" Token-kind-eq if
-            \ args_ t_
-            Token-get-intval
-            \ args_  n
-            List-add-int-v2
-            \ args_
-            incr-pos
-        else
-            ." 361 unsupported"
-            panic
-        endif
-        endif
+        exit
     endif
+
+    parse-arg
+    \ args_ node_
+    List-add-1
+    \ args_
+    incr-pos
+
+    begin
+        0 peek
+        \ args_ t_
+        s" ," Token-val-eq if
+            \ args_
+            s" ," consume-sym
+
+            parse-arg
+            \ args_ node_
+            List-add-1
+            \ args_
+            incr-pos
+            
+            false \ continue
+        else
+            \ args_
+            true \ break
+        endif
+    until
 ;
 
 : parse-expr ( -- expr_node_ )
@@ -403,7 +430,7 @@ create pos_ 1 cells allot
 
         parse-expr
         \ stmt_ expr_
-        List-add-v2
+        List-add-1
         \ stmt_
         s" ;" consume-sym
 
@@ -431,7 +458,7 @@ create pos_ 1 cells allot
 
     parse-expr
     \ stmt_ expr_
-    List-add-v2
+    List-add-1
     \ stmt_
 
     s" ;" consume-sym
@@ -453,7 +480,7 @@ create pos_ 1 cells allot
     s" (" consume-sym
     parse-args
     \ stmt_ args_
-    List-add-all-nodrop
+    List-add-all-1
     \ stmt_
     s" )" consume-sym
 
@@ -547,7 +574,7 @@ create pos_ 1 cells allot
 
         parse-expr
         \ stmt_ expr_
-        List-add-v2
+        List-add-1
         \ stmt_
     endif
 
