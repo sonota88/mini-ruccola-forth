@@ -305,6 +305,28 @@ node
     \ child_list_
 ;
 
+: List-add-all-nodrop ( list1_ list2_ -- list1_ )
+    dup List-len 0
+    \ list1_ list2_ | size 0
+    ?do
+        \ list1_ list2_
+        dup i
+        \ list1_ list2_ | list2_ i
+        List-get
+        \ list1_ list2_ | node_
+        2 pick
+        \ list1_ list2_ | node_ list1_
+        swap
+        \ list1_ list2_ | list1_ node_
+        List-add-v2
+        \ list1_ list2_ | list1_
+        drop
+        \ list1_ list2_
+    loop
+
+    drop
+;
+
 : List-rest ( list_ -- rest_list_ )
     List-new
     \ list_ newlist_

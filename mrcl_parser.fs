@@ -214,7 +214,7 @@ create pos_ 1 cells allot
     parse-int
 ;
 
-: Token-kind-eq ( t_  kind_ size )
+: Token-kind-eq ( t_  kind_ size -- flag )
     2 pick
     \ t_ | kind_ size  t_
     Token-get-kind
@@ -341,9 +341,27 @@ create pos_ 1 cells allot
     s" )" Token-val-eq if
         \ args_
     else
-        s" a" List-add-str-v2
-        \ args_
-        incr-pos
+        0 peek
+        \ args_ | t_
+        dup s" ident" Token-kind-eq if
+            \ args_ t_
+            Token-get-val
+            \ args_  s_ size
+            List-add-str-v2
+            \ args_
+            incr-pos
+        else dup s" int" Token-kind-eq if
+            \ args_ t_
+            Token-get-intval
+            \ args_  n
+            List-add-int-v2
+            \ args_
+            incr-pos
+        else
+            ." 361 unsupported"
+            panic
+        endif
+        endif
     endif
 ;
 
@@ -433,6 +451,10 @@ create pos_ 1 cells allot
     \ stmt_
 
     s" (" consume-sym
+    parse-args
+    \ stmt_ args_
+    List-add-all-nodrop
+    \ stmt_
     s" )" consume-sym
 
     s" ;" consume-sym

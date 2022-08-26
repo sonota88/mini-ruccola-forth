@@ -76,21 +76,52 @@ include lib/json.fs
 
 \ (fn-name arg1 arg2 ... argN)
 : _gen-funcall ( funcall_ -- )
+    dup List-rest
+    \ funcall_ args_
+    \ ." 81" Json-print bye
+    dup List-len
+    \ funcall_ args_ num-args
+    dup 0
+    \ funcall_ args_ num-args | num-args 0
+    ?do
+        \ funcall_ args_ num-args
+        dup i
+        \ funcall_ args_ num-args | num-args i
+        -
+        1 -
+        \ funcall_ args_ num-args | size-i
+        \ funcall_ args_ num-args | i2
+        2 pick
+        \ funcall_ args_ num-args | i2 | args_
+        1 pick
+        \ funcall_ args_ num-args | i2 | args_ i2
+        List-get
+        \ funcall_ args_ num-args | i2 | node_
+        gen-expr
+        \ funcall_ args_ num-args | i2
+        ."   push reg_a" cr
+        drop
+        \ funcall_ args_ num-args
+    loop
+    drop drop
+
     dup 0 List-get-str
     \ funcall_  fn_name_ size
 
-    \ TODO
     ."   _cmt call~~"
     str-dup type
     cr
     ."   call "
     str-dup type
     cr
-    ."   add_sp 0" cr
-
     \ funcall_  fn_name_ size
+
     str-drop
-    drop
+    \ funcall_
+    List-len 1 -
+    \ num-args
+    
+    ."   add_sp " print-int  cr
 ;
 
 \ (call *{funcall})
