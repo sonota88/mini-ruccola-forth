@@ -39,7 +39,7 @@ create src-end_ 1 cells allot
 
     \ TODO large letter
 
-    dup is-digit-char? if
+    dup digit-char? if
         drop true exit
     endif
 
