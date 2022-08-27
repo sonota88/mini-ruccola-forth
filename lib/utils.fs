@@ -199,9 +199,18 @@ create read-char-buf_ 1 chars allot
     0 =
 ;
 
+: str-pick ( i -- s_ size )
+    dup 1 +
+    \ i i+1
+    pick
+    \ i s_
+    swap
+    \ s_ i
+    pick
+;
+
 : str-dup ( s_ size -- s_ size  s_ size )
-    1 pick
-    1 pick
+    1 str-pick
 ;
 
 : str-drop ( s_ size -- )
