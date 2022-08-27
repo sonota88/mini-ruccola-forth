@@ -39,6 +39,10 @@ create src-end_ 1 cells allot
 
     \ TODO large letter
 
+    dup is-digit-char? if
+        drop true exit
+    endif
+
     dup 95 = if \ '_'
         drop true exit
     endif
@@ -144,6 +148,12 @@ create src-end_ 1 cells allot
     \ s_ size | s_ size
     s" call" str-eq if
         \ s_ size
+        str-drop
+        true exit
+    endif
+
+    str-dup
+    s" call_set" str-eq if
         str-drop
         true exit
     endif

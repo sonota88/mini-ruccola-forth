@@ -537,6 +537,40 @@ create pos_ 1 cells allot
     \ stmt_
 ;
 
+: parse-call-set ( -- stmt_ )
+    List-new
+    \ stmt_
+    s" call_set" List-add-str-1
+    \ stmt_
+
+    s" call_set" consume-kw
+
+    \ stmt_ funcall_
+    s" a" List-add-str-1 \ TODO
+
+    pos++ \ var name
+
+    s" =" consume-sym
+
+    List-new
+    \ stmt_ funcall_
+
+    0 peek
+    Token-get-val
+    \ stmt_ funcall_  fname_ size
+    List-add-str-1
+    \ stmt_ funcall_
+    pos++
+
+    s" (" consume-sym
+    s" )" consume-sym
+    s" ;" consume-sym
+
+    \ stmt_ funcall_
+    List-add-list-1
+    \ stmt_
+;
+
 : parse-vm-comment ( -- stmt_ )
     s" _cmt" consume-kw
     s" (" consume-sym
@@ -574,12 +608,14 @@ create pos_ 1 cells allot
         \ stmt_
     else 0 peek s" set"  Token-val-eq if parse-set
     else 0 peek s" call" Token-val-eq if parse-call
+    else 0 peek s" call_set" Token-val-eq if parse-call-set
     else 0 peek s" _cmt" Token-val-eq if parse-vm-comment
     else
         \ (empty)
         ." 348 failed to parse statement" cr
         0 peek Json-print
         panic
+    endif
     endif
     endif
     endif

@@ -332,6 +332,7 @@ create read-char-buf_ 1 chars allot
     again
 ;
 
+\ TODO rename => digit-char?
 : is-digit-char? ( c -- flag )
     dup 48 < if \ '0'
         drop false

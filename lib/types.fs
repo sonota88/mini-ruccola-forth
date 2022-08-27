@@ -307,7 +307,7 @@ node
     \ list_
 ;
 
-: List-add-str-v3 ( list_ s_ len -- ) \ TODO rename -0
+: List-add-str-0 ( list_ s_ len -- )
     List-add-str-1
     \ list_
     drop

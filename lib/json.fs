@@ -313,7 +313,7 @@
             2 pick
             2 pick
             \ list_ s_ | s_ size | list_  s_ size
-            List-add-str-v3
+            List-add-str-0
             \ list_ s_ | s_ size
 
             drop-1

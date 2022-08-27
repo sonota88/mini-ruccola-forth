@@ -81,7 +81,7 @@ include lib/json.fs
     2 pick
     2 pick
     \ ctx_  s_ size | lvars_  s_ size
-    List-add-str-v3
+    List-add-str-0
     \ ctx_  s_ size
 
     str-drop
@@ -89,13 +89,15 @@ include lib/json.fs
 ;
 
 : Context-dump ( ctx_ -- )
+    ." context:" cr
+
     \ TODO fn args
 
     dup 1 cells +
     \ ctx_ ctx_[1]
     @
     \ ctx_ lvars_
-    Json-print
+    ."   lvars: " Json-print-oneline cr
     \ ctx_
     drop
 ;
@@ -286,43 +288,107 @@ include lib/json.fs
     \ (empty)
 ;
 
-: _gen-set ( ctx_ dest expr_ -- )
-    drop-1 \ TODO
-    \ ctx_ expr_
+: _gen-set ( ctx_ dest_ expr_ -- )
+    \ ctx_ dest_ expr_
 
+    2 pick
+    \ ctx_ dest_ expr_ | ctx_
+    1 pick
+    \ ctx_ dest_ expr_ | ctx_ expr_
     gen-expr-v2
-    \ (empty)
+    \ ctx_ dest_ expr_
+    drop
+    \ ctx_ dest_
 
-    ."   cp reg_a [bp:"
-    -1 print-int \ TODO
-    ." ]" cr
+    dup
+    \ ctx_ dest_ | dest_
+    Node-get-str
+    \ ctx_ dest_ | s_ size
+    3 pick
+    \ ctx_ dest_ | s_ size | ctx_
+    2 pick
+    2 pick
+    \ ctx_ dest_ | s_ size | ctx_  s_ size
+
+    Context-lvar-name?
+    \ ctx_ dest_ | s_ size | flag
+    if
+        \ ctx_ dest_ | s_ size
+        3 pick
+        \ ctx_ dest_ | s_ size | ctx_
+        2 pick
+        2 pick
+        \ ctx_ dest_ | s_ size | ctx_  s_ size
+        Context-lvar-disp
+        \ ctx_ dest_ | s_ size | disp
+
+        ."   cp reg_a [bp:" print-int ." ]" cr
+        \ ctx_ dest_ | s_ size
+
+        str-drop
+        drop
+        drop
+    else
+        ." 304" panic
+    endif
+
+    \ (empty)
 ;
 
-\ (set {name} {initial-value})
+\ (set {dest} {initial-value})
 : gen-set ( ctx_ stmt_ -- )
     \ ctx_ stmt_
     1 pick
     \ ctx_ stmt_ | ctx_
-    0 \ TODO dummy
-    \ ctx_ stmt_ | ctx_ dest
+
+    1 pick
+    \ ctx_ stmt_ | ctx_ stmt_
+    1 List-get ( => node_ )
+    \ ctx_ stmt_ | ctx_ dest_
+
     2 pick
-    \ ctx_ stmt_ | ctx_ dest stmt_
+    \ ctx_ stmt_ | ctx_ dest_ stmt_
     2 List-get
-    \ ctx_ stmt_ | ctx_ dest expr_
+    \ ctx_ stmt_ | ctx_ dest_ expr_
     _gen-set
     \ ctx_ stmt_
     drop drop
 ;
 
+\ (_cmt {comment})
+: gen-vm-comment ( s_ size -- )
+    ."   _cmt "
+
+    0 ?do
+        dup
+        i chars +
+        c@
+        dup 32 = if \ ' '
+            drop
+            126 emit \ '~'
+        else
+            emit
+        endif
+    loop
+
+    cr
+
+    \ s_
+    drop
+    \ (empty)
+;
+
 \ (fn-name arg1 arg2 ... argN)
 : _gen-funcall ( ctx_ funcall_ -- )
-    drop-1 \ TODO
+    \ ctx_ funcall_
+
     dup List-rest
     \ ctx_ funcall_ args_
     List-reverse
     \ ctx_ funcall_ args-r_
     dup List-len
     \ ctx_ funcall_ args-r_ num-args
+
     0
     \ ctx_ funcall_ args-r_ | num-args 0
     ?do
@@ -378,31 +444,37 @@ include lib/json.fs
     drop drop
 ;
 
-\ (_cmt {comment})
-: gen-vm-comment ( ctx_ stmt_ -- )
-    drop-1 \ TODO
-    ."   _cmt "
+\ (call_set {dest} {funcall})
+: gen-call-set ( ctx_ stmt_ -- )
+    \ ctx_ stmt_
 
+    1 pick
+    \ ctx_ stmt_ | ctx_
+    1 pick
+    \ ctx_ stmt_ | ctx_ stmt_
+    2 List-get-list
+    \ ctx_ stmt_ | ctx_ funcall_
+    _gen-funcall
+    \ ctx_ stmt_
+
+    1 pick 1 pick
+    \ ctx_ stmt_ | ctx_ stmt_
     1 List-get-str
-    \ s_ size
-
-    0 ?do
-        dup
-        i chars +
-        c@
-        dup 32 = if \ ' '
-            drop
-            126 emit \ '~'
-        else
-            emit
-        endif
-    loop
-
-    cr
-
-    \ s_
-    drop
-    \ (empty)
+    \ ctx_ stmt_ | ctx_  s_ size
+    Context-lvar-name? if
+        \ ctx_ stmt_
+        1 pick 1 pick
+        \ ctx_ stmt_ | ctx_ stmt_
+        1 List-get-str
+        \ ctx_ stmt_ | ctx_  s_ size
+        Context-lvar-disp
+        \ ctx_ stmt_ | disp
+        ."   cp reg_a [bp:" print-int ." ]" cr
+        \ ctx_ stmt_
+        drop drop
+    else
+        ." 465" panic
+    endif
 ;
 
 : gen-stmt ( ctx_ stmt_ -- )
@@ -412,7 +484,7 @@ include lib/json.fs
     \ ctx_ stmt_ | stmt_ 0
     List-get-str
     \ ctx_ stmt_ | s_ size
-    \         ^^^^^^^stmt_[0]
+    \              ^^^^^^^stmt_[0]
 
     str-dup
     \ ctx_ stmt_ | s_ size | s_ size
@@ -445,17 +517,30 @@ include lib/json.fs
 
     else
         str-dup
+        s" call_set" str-eq
+    if
+        \ ctx_ stmt_ | s_ size
+        str-drop
+        \ ctx_ stmt_
+        gen-call-set
+
+    else
+        str-dup
         s" _cmt" str-eq
     if
         \ ctx_ stmt_ | s_ size
         str-drop
         \ ctx_ stmt_
+        drop-1
+        \ stmt_
+        1 List-get-str
         gen-vm-comment
         \ (empty)
 
     else
         ." 287"
         panic
+    endif
     endif
     endif
     endif
@@ -473,12 +558,14 @@ include lib/json.fs
         \ ctx_ stmt_
         1 pick
         \ ctx_ stmt_ | ctx_
-        0 \ TODO dummy
-        \ ctx_ stmt_ | ctx_ dest
+        1 pick
+        \ ctx_ stmt_ | ctx_ stmt_
+        1 List-get ( => node_ )
+        \ ctx_ stmt_ | ctx_ dest_
         2 pick
-        \ ctx_ stmt_ | ctx_ dest stmt_
+        \ ctx_ stmt_ | ctx_ dest_ stmt_
         2 List-get
-        \ ctx_ stmt_ | ctx_ dest expr_
+        \ ctx_ stmt_ | ctx_ dest_ expr_
         _gen-set
         \ ctx_ stmt_
     endif
