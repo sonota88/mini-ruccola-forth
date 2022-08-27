@@ -23,8 +23,8 @@ create read-char-buf_ 1 chars allot
 : dd .s cr ;
 
 : emit-e ( c -- )
-    stderr emit-file
-    stderr flush-file
+    stderr emit-file throw
+    stderr flush-file throw
 ;
 
 : cr-e ( -- )
@@ -33,7 +33,7 @@ create read-char-buf_ 1 chars allot
 
 : type-e ( s_ size -- )
     stderr write-file throw
-    stderr flush-file
+    stderr flush-file throw
 ;
 
 : panic
@@ -49,6 +49,14 @@ create read-char-buf_ 1 chars allot
         \ ok
     else
         panic
+    endif
+;
+
+: puts-fn ( s_ size -- )
+    true if
+        s"   -->> " type-e
+        type-e
+        cr-e
     endif
 ;
 

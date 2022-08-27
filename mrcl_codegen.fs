@@ -71,6 +71,13 @@ include lib/json.fs
     \ ctx_
 ;
 
+: Context-set-fn-arg-names-1 ( ctx_ args_ -- ctx_ )
+    1 pick
+    \ ctx_ args_ ctx_
+    !
+    \ ctx_
+;
+
 : Context-add-lvar-0 ( ctx_  s_ size -- )
     2 pick
     \ ctx_  s_ size  ctx_
@@ -92,13 +99,37 @@ include lib/json.fs
 
     \ TODO fn args
 
+    dup 0 cells +
+    \ ctx_ ctx_[0]
+    @
+    \ ctx_ args_
+    ."   fn arg names: " Json-print-oneline cr
+    \ ctx_
+
     dup 1 cells +
     \ ctx_ ctx_[1]
     @
     \ ctx_ lvars_
-    ."   lvars: " Json-print-oneline cr
+    ."   lvar names: " Json-print-oneline cr
     \ ctx_
     drop
+;
+
+: Context-fn-arg-name? ( ctx_  s_ size -- bool )
+    \ ctx_  s_ size
+    2 pick
+    \ ctx_  s_ size | ctx_
+    \ ctx_  s_ size | ctx_[0]
+    @
+    \ ctx_  s_ size | args_
+    2 str-pick
+    \ ctx_  s_ size | args_  s_ size
+    Names-include?
+    \ ctx_  s_ size | include?
+    drop-1
+    drop-1
+    drop-1
+    \ include?
 ;
 
 : Context-lvar-name? ( ctx_  s_ size -- bool )
@@ -117,6 +148,31 @@ include lib/json.fs
     drop-1
     drop-1
     \ include?
+;
+
+: Context-fn-arg-disp ( ctx_  s_ size -- disp )
+    \ ctx_  s_ size
+    2 pick
+    \ ctx_  s_ size | ctx_
+    0 cells +
+    \ ctx_  s_ size | ctx_[0]
+    @
+    \ ctx_  s_ size | lvars_
+    2 str-pick
+    \ ctx_  s_ size | lvars_  s_ size
+    Names-index
+    if
+        \ ctx_  s_ size | index
+        drop-1
+        drop-1
+        drop-1
+        \ index
+        2 +
+        \ disp
+    else
+        \ ctx_  s_ size | index
+        ." 174" panic
+    endif
 ;
 
 : Context-lvar-disp ( ctx_  s_ size -- disp )
@@ -142,9 +198,8 @@ include lib/json.fs
         \ disp
     else
         \ ctx_  s_ size | index
-        ." 139" panic
+        ." 201" panic
     endif
-    
 ;
 
 \ --------------------------------
@@ -209,7 +264,32 @@ include lib/json.fs
 
             \ (empty)
         else
-            ." 119" panic
+            \ ctx_  s_ size
+            2 pick
+            \ ctx_  s_ size | ctx_
+            2 str-pick
+            \ ctx_  s_ size | ctx_  s_ size
+            Context-fn-arg-name?
+        if
+            \ ctx_  s_ size
+            2 pick
+            \ ctx_  s_ size | ctx_
+            2 str-pick
+            \ ctx_  s_ size | ctx_  s_ size
+            Context-fn-arg-disp
+            \ ctx_  s_ size | disp
+
+            drop-1
+            drop-1
+            drop-1
+            \ disp
+
+            ."   cp [bp:" print-int ." ] reg_a" cr
+
+            \ (empty)
+        else
+            ." 221" panic
+        endif
         endif
 
     else dup Node-get-type Node-type-list = if
@@ -543,6 +623,8 @@ include lib/json.fs
 \ (var {name})
 \ (var {name} {initial-value})
 : gen-var ( ctx_ stmt_ -- )
+    s" gen-var" puts-fn
+
     ."   sub_sp 1" cr
 
     dup List-len
@@ -569,6 +651,15 @@ include lib/json.fs
 \ (func fn-name args body)
 : gen-func-def ( fn-def_ -- )
     Context-new
+    \ fn-def_ ctx_
+    1 pick
+    \ fn-def_ ctx_ | fn-def_
+    2 List-get-list
+    \ fn-def_ ctx_ | args_
+    \ fn-def_ | ctx_ args_
+    Context-set-fn-arg-names-1
+    \ fn-def_ | ctx_
+
     \ fn-def_ ctx_
     1 pick
     1

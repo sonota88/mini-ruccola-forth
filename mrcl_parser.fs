@@ -538,6 +538,8 @@ create pos_ 1 cells allot
 ;
 
 : parse-call-set ( -- stmt_ )
+    s" parse-call-set" puts-fn
+
     List-new
     \ stmt_
     s" call_set" List-add-str-1
@@ -563,6 +565,11 @@ create pos_ 1 cells allot
     pos++
 
     s" (" consume-sym
+    parse-args
+    \ stmt_ | funcall_ args_
+    List-add-all-1
+    \ stmt_ | funcall_
+    
     s" )" consume-sym
     s" ;" consume-sym
 
@@ -599,6 +606,8 @@ create pos_ 1 cells allot
 ;
 
 : parse-stmt ( -- stmt_ )
+    s" parse-stmt" puts-fn
+
     0 peek s" return"
     \ t_  val_ size
     Token-val-eq
@@ -625,6 +634,8 @@ create pos_ 1 cells allot
 ;
 
 : parse-var ( -- stmt_ )
+    s" parse-var" puts-fn
+
     List-new
     \ stmt_
 
@@ -655,6 +666,7 @@ create pos_ 1 cells allot
 ;
 
 : parse-func-def ( -- fn-def_ )
+    s" parse-func-def" puts-fn
     List-new
     \ fn_
 
