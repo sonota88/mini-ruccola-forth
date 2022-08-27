@@ -393,7 +393,7 @@ create src-end_ 1 cells allot
             print-sym-token
             1 chars +
 
-        else dup c@ is-int-char? if
+        else dup c@ int-char? if
             \ rest_
             dup 16
             \ rest_ | rest_ dummy-size

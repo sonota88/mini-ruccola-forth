@@ -262,7 +262,7 @@
             \ list_ s_
             1 chars +
 
-        else dup is-int-char? if
+        else dup int-char? if
             \ list_ s_ c
             drop
             \ list_ s_
