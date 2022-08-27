@@ -546,11 +546,15 @@ create pos_ 1 cells allot
     \ stmt_
 
     s" call_set" consume-kw
-
     \ stmt_ funcall_
-    s" a" List-add-str-1 \ TODO
 
-    pos++ \ var name
+    ( var name )
+    0 peek
+    \ stmt_ funcall_ t_
+    Token-get-val
+    List-add-str-1
+    \ stmt_ funcall_
+    pos++
 
     s" =" consume-sym
 

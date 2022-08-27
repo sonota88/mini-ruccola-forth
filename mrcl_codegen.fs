@@ -551,6 +551,8 @@ include lib/json.fs
 ;
 
 : gen-stmt ( ctx_ stmt_ -- )
+    s" gen-stmt" puts-fn
+
     dup
     \ ctx_ stmt_ stmt_
     0
@@ -650,6 +652,8 @@ include lib/json.fs
 
 \ (func fn-name args body)
 : gen-func-def ( fn-def_ -- )
+    s" gen-func-def" puts-fn
+
     Context-new
     \ fn-def_ ctx_
     1 pick
