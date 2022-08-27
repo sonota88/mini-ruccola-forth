@@ -78,8 +78,7 @@ include lib/json.fs
     \ ctx_  s_ size  ctx_[1]
     @
     \ ctx_  s_ size  lvars_
-    2 pick
-    2 pick
+    2 str-pick
     \ ctx_  s_ size | lvars_  s_ size
     List-add-str-0
     \ ctx_  s_ size
@@ -110,8 +109,7 @@ include lib/json.fs
     \ ctx_  s_ size | ctx_[1]
     @
     \ ctx_  s_ size | lvars_
-    2 pick
-    2 pick
+    2 str-pick
     \ ctx_  s_ size | lvars_  s_ size
     Names-include?
     \ ctx_  s_ size | include?
@@ -129,8 +127,7 @@ include lib/json.fs
     \ ctx_  s_ size | ctx_[1]
     @
     \ ctx_  s_ size | lvars_
-    2 pick
-    2 pick
+    2 str-pick
     \ ctx_  s_ size | lvars_  s_ size
     Names-index
     if
@@ -191,16 +188,14 @@ include lib/json.fs
         \ ctx_  s_ size
         2 pick
         \ ctx_  s_ size | ctx_
-        2 pick
-        2 pick
+        2 str-pick
         \ ctx_  s_ size | ctx_  s_ size
         Context-lvar-name?
         if
             \ ctx_  s_ size
             2 pick
             \ ctx_  s_ size | ctx_
-            2 pick
-            2 pick
+            2 str-pick
             \ ctx_  s_ size | ctx_  s_ size
             Context-lvar-disp
             \ ctx_  s_ size | disp
@@ -306,8 +301,7 @@ include lib/json.fs
     \ ctx_ dest_ | s_ size
     3 pick
     \ ctx_ dest_ | s_ size | ctx_
-    2 pick
-    2 pick
+    2 str-pick
     \ ctx_ dest_ | s_ size | ctx_  s_ size
 
     Context-lvar-name?
@@ -316,8 +310,7 @@ include lib/json.fs
         \ ctx_ dest_ | s_ size
         3 pick
         \ ctx_ dest_ | s_ size | ctx_
-        2 pick
-        2 pick
+        2 str-pick
         \ ctx_ dest_ | s_ size | ctx_  s_ size
         Context-lvar-disp
         \ ctx_ dest_ | s_ size | disp
