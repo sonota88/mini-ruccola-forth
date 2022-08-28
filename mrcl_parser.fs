@@ -415,32 +415,55 @@ create pos_ 1 cells allot
     \ node_
 ;
 
-: parse-expr ( -- expr_node_ ) recursive
-    0 peek pos++
+defer parse-expr
+
+: parse-expr-factor ( -- expr_node_ )
+    s" parse-expr-factor" puts-fn
+
+    0 peek
     \ t_
     dup s" int" Token-kind-eq if
         \ t_
+        pos++
         Token-get-intval
         \ n
         Node-new-int
         \ node_
     else dup s" ident" Token-kind-eq if
         \ t_
+        pos++
         Token-get-val
         \ s_ size
         Node-new-str
+        \ node_
+    else dup s" sym" Token-kind-eq if
+        \ t_
+        drop
+        s" (" consume-sym
+        parse-expr
+        \ node_
+        s" )" consume-sym
         \ node_
     else
         ." 428 unexpected token kind"
         panic \ TODO
     endif
     endif
+    endif
+;
+
+( parse-expr )
+:noname  ( -- expr_node_ )
+    s" parse-expr" puts-fn
+
+    parse-expr-factor
+    \ expr_
 
     \ node_
     0 peek s" +" Token-val-eq if
         \ node_
         pos++
-        parse-expr
+        parse-expr-factor
         \ node_ rhs_
 
         s" +"
@@ -459,6 +482,7 @@ create pos_ 1 cells allot
 
     \ node_
 ;
+is parse-expr
 
 : parse-return ( -- stmt_ )
     s" return" consume-kw
