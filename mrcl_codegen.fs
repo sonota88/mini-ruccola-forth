@@ -15,7 +15,7 @@ create label-index_ 1 cells allot
 ;
 
 : label-index-init ( -- )
-    1 label-index!
+    0 label-index!
 ;
 
 : incr-label-index ( -- )
@@ -245,8 +245,8 @@ create label-index_ 1 cells allot
 ;
 
 : gen-expr-eq ( -- )
-    label-index@
     incr-label-index
+    label-index@
     \ li
 
     ."   pop reg_b" cr
@@ -266,132 +266,144 @@ create label-index_ 1 cells allot
     drop
 ;
 
-: gen-expr-v2 ( ctx_ expr_ -- ) recursive
-    dup
-    \ ctx_ expr_ | expr_
-    Node-get-type Node-type-int = if
-        \ ctx_ expr_
-        drop-1
-        \ expr_
-        Node-get-int
-        \ n
-        ."   cp "
-        print-int
-        ."  reg_a" cr
-        \ (empty)
+: gen-expr-int ( ctx_ expr_ -- )
+    drop-1
+    \ expr_
+    Node-get-int
+    \ n
+    ."   cp "
+    print-int
+    ."  reg_a" cr
+    \ (empty)
+;
 
-    else dup Node-get-type Node-type-str = if
-        \ ctx_ expr_
-
-        Node-get-str
+: gen-expr-str ( ctx_ expr_ -- )
+    Node-get-str
+    \ ctx_  s_ size
+    2 pick
+    \ ctx_  s_ size | ctx_
+    2 str-pick
+    \ ctx_  s_ size | ctx_  s_ size
+    Context-lvar-name?
+    if
         \ ctx_  s_ size
         2 pick
         \ ctx_  s_ size | ctx_
         2 str-pick
         \ ctx_  s_ size | ctx_  s_ size
-        Context-lvar-name?
-        if
-            \ ctx_  s_ size
-            2 pick
-            \ ctx_  s_ size | ctx_
-            2 str-pick
-            \ ctx_  s_ size | ctx_  s_ size
-            Context-lvar-disp
-            \ ctx_  s_ size | disp
+        Context-lvar-disp
+        \ ctx_  s_ size | disp
 
-            drop-1
-            drop-1
-            drop-1
-            \ disp
+        drop-1
+        drop-1
+        drop-1
+        \ disp
 
-            ."   cp [bp:" print-int ." ] reg_a" cr
+        ."   cp [bp:" print-int ." ] reg_a" cr
 
-            \ (empty)
-        else
-            \ ctx_  s_ size
-            2 pick
-            \ ctx_  s_ size | ctx_
-            2 str-pick
-            \ ctx_  s_ size | ctx_  s_ size
-            Context-fn-arg-name?
-        if
-            \ ctx_  s_ size
-            2 pick
-            \ ctx_  s_ size | ctx_
-            2 str-pick
-            \ ctx_  s_ size | ctx_  s_ size
-            Context-fn-arg-disp
-            \ ctx_  s_ size | disp
+        \ (empty)
+    else
+        \ ctx_  s_ size
+        2 pick
+        \ ctx_  s_ size | ctx_
+        2 str-pick
+        \ ctx_  s_ size | ctx_  s_ size
+        Context-fn-arg-name?
+    if
+        \ ctx_  s_ size
+        2 pick
+        \ ctx_  s_ size | ctx_
+        2 str-pick
+        \ ctx_  s_ size | ctx_  s_ size
+        Context-fn-arg-disp
+        \ ctx_  s_ size | disp
 
-            drop-1
-            drop-1
-            drop-1
-            \ disp
+        drop-1
+        drop-1
+        drop-1
+        \ disp
 
-            ."   cp [bp:" print-int ." ] reg_a" cr
+        ."   cp [bp:" print-int ." ] reg_a" cr
 
-            \ (empty)
-        else
-            ." 221" panic
-        endif
-        endif
+        \ (empty)
+    else
+        ." 221" panic
+    endif
+    endif
+;
 
+defer gen-expr-v2
+
+: gen-expr-binop ( ctx_ expr_ -- )
+    Node-get-list
+    \ ctx_ list_
+
+    ( lhs )
+    dup 1 List-get
+    \ ctx_ list_ | expr_
+    2 pick swap
+    \ ctx_ list_ | ctx_ expr_
+    gen-expr-v2
+    \ ctx_ list_
+    ."   push reg_a" cr
+
+    ( rhs )
+    dup 2 List-get
+    \ ctx_ list_ | expr_
+    2 pick swap
+    \ ctx_ list_ | ctx_ expr_
+    gen-expr-v2
+    \ ctx_ list_
+    ."   push reg_a" cr
+    \ ctx_ list_
+
+    dup 0
+    \ ctx_ list_ | list_ 0
+    List-get-str
+    str-dup
+    \ ctx_ list_ s_ size | s_ size
+    s" +" str-eq
+    if
+        \ ctx_ list_  s_ size
+        gen-expr-add
+        \ ctx_ list_  s_ size
+        str-drop
+        drop
+        drop
+        \ (empty)
+    else
+        \ ctx_ list_  s_ size
+        str-dup
+        \ ctx_ list_  s_ size | s_ size
+        s" ==" str-eq
+    if
+        \ ctx_ list_  s_ size
+        gen-expr-eq
+        \ ctx_ list_  s_ size
+        str-drop
+        drop
+        drop
+        \ (empty)
+    else
+        ." 46"
+        panic
+    endif
+    endif
+;
+
+( gen-expr-v2 )
+:noname ( ctx_ expr_ -- )
+    dup
+    \ ctx_ expr_ | expr_
+    Node-get-type Node-type-int = if
+        \ ctx_ expr_
+        gen-expr-int
+    else dup Node-get-type Node-type-str = if
+        \ ctx_ expr_
+        gen-expr-str
     else dup Node-get-type Node-type-list = if
         \ ctx_ expr_
-        Node-get-list
-        \ ctx_ list_
-
-        ( lhs )
-        dup 1 List-get
-        \ ctx_ list_ | expr_
-        2 pick swap
-        \ ctx_ list_ | ctx_ expr_
-        gen-expr-v2
-        \ ctx_ list_
-        ."   push reg_a" cr
-
-        ( rhs )
-        dup 2 List-get
-        \ ctx_ list_ | expr_
-        2 pick swap
-        \ ctx_ list_ | ctx_ expr_
-        gen-expr-v2
-        \ ctx_ list_
-        ."   push reg_a" cr
-        \ ctx_ list_
-
-        dup 0
-        \ ctx_ list_ | list_ 0
-        List-get-str
-        str-dup
-        \ ctx_ list_ s_ size | s_ size
-        s" +" str-eq
-        if
-            \ ctx_ list_  s_ size
-            gen-expr-add
-            \ ctx_ list_  s_ size
-            str-drop
-            drop
-            drop
-            \ (empty)
-        else
-            \ ctx_ list_  s_ size
-            str-dup
-            \ ctx_ list_  s_ size | s_ size
-            s" ==" str-eq
-        if
-            \ ctx_ list_  s_ size
-            gen-expr-eq
-            \ ctx_ list_  s_ size
-            str-drop
-            drop
-            drop
-            \ (empty)
-        else
-            ." 46"
-            panic
-        endif
-        endif
+        gen-expr-binop
     else
         \ expr_
         ." 33 unsupported expr type"
@@ -400,6 +412,7 @@ create label-index_ 1 cells allot
     endif
     endif
 ;
+is gen-expr-v2
 
 \ (return)
 \ (return {expr})
@@ -608,6 +621,49 @@ create label-index_ 1 cells allot
     endif
 ;
 
+defer gen-stmts
+
+\ (while {expr} {stmts})
+: gen-while ( ctx_ stmt_ -- )
+    incr-label-index
+    label-index@
+    \ ctx_ stmt_ li
+
+    ." label while_" dup print-int cr
+
+    \ ctx_ stmt_ li
+    2 pick
+    \ ctx_ stmt_ li | ctx_
+    2 pick
+    \ ctx_ stmt_ li | ctx_ stmt_
+    1 List-get
+    \ ctx_ stmt_ li | ctx_ expr_
+    gen-expr-v2
+    \ ctx_ stmt_ li
+
+    ."   cp 0 reg_b" cr
+    ."   compare" cr
+
+    ."   jump_eq end_while_" dup print-int cr
+
+    \ ctx_ stmt_ li
+    2 pick
+    \ ctx_ stmt_ li | ctx_
+    2 pick
+    \ ctx_ stmt_ li | ctx_ stmt_
+    2 List-get-list
+    \ ctx_ stmt_ li | ctx_ stmts_
+    gen-stmts
+    \ ctx_ stmt_ li
+
+    ."   jump while_" dup print-int cr
+
+    ." label end_while_" dup print-int cr
+
+    drop
+    drop drop
+;
+
 : gen-stmt ( ctx_ stmt_ -- )
     s" gen-stmt" puts-fn
 
@@ -659,6 +715,15 @@ create label-index_ 1 cells allot
 
     else
         str-dup
+        s" while" str-eq
+    if
+        \ ctx_ stmt_ | s_ size
+        str-drop
+        \ ctx_ stmt_
+        gen-while
+
+    else
+        str-dup
         s" _cmt" str-eq
     if
         \ ctx_ stmt_ | s_ size
@@ -678,7 +743,30 @@ create label-index_ 1 cells allot
     endif
     endif
     endif
+    endif
 ;
+
+:noname ( ctx_ stmts_ -- )
+    s" gen-stmts" puts-fn
+
+    dup List-len 0
+    \ ctx_ stmts_ | size 0
+    ?do
+        \ ctx_ stmts_
+        1 pick
+        \ ctx_ stmts_ | ctx_
+        1 pick
+        \ ctx_ stmts_ | ctx_ stmts_
+        i List-get-list
+        \ ctx_ stmts_ | ctx_ stmt_
+        gen-stmt
+        \ ctx_ stmts_
+    loop
+    \ ctx_ stmts_
+    drop
+    drop
+;
+is gen-stmts
 
 \ (var {name})
 \ (var {name} {initial-value})

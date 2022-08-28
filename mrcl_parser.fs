@@ -533,6 +533,8 @@ is parse-expr
 ;
 
 : parse-set ( -- stmt_ )
+    s" parse-set" puts-fn
+
     List-new
     \ stmt_
 
@@ -628,6 +630,35 @@ is parse-expr
     \ stmt_
 ;
 
+defer parse-stmts
+
+: parse-while ( -- stmt_ )
+    s" parse-while" puts-fn
+
+    List-new
+    \ stmt_
+    s" while" List-add-str-1
+
+    s" while" consume-kw
+    s" (" consume-sym
+
+    parse-expr
+    \ stmt_ expr_
+    List-add-1
+
+    s" )" consume-sym
+
+    s" {" consume-sym
+
+    parse-stmts
+    \ stmt_ stmts_
+    List-add-list-1
+    \ stmt_
+
+    s" }" consume-sym
+    \ stmt_
+;
+
 : parse-vm-comment ( -- stmt_ )
     s" _cmt" consume-kw
     s" (" consume-sym
@@ -665,10 +696,11 @@ is parse-expr
         \ (empty)
         parse-return
         \ stmt_
-    else 0 peek s" set"  Token-val-eq if parse-set
-    else 0 peek s" call" Token-val-eq if parse-call
+    else 0 peek s" set"      Token-val-eq if parse-set
+    else 0 peek s" call"     Token-val-eq if parse-call
     else 0 peek s" call_set" Token-val-eq if parse-call-set
-    else 0 peek s" _cmt" Token-val-eq if parse-vm-comment
+    else 0 peek s" while"    Token-val-eq if parse-while
+    else 0 peek s" _cmt"     Token-val-eq if parse-vm-comment
     else
         \ (empty)
         ." 348 failed to parse statement" cr
@@ -679,9 +711,36 @@ is parse-expr
     endif
     endif
     endif
+    endif
 
     \ stmt_
 ;
+
+:noname ( -- stmts_ )
+    s" parse-stmts" puts-fn
+
+    List-new
+    \ stmts_
+
+    begin
+        \ stmts_
+        0 peek
+        s" }" Token-val-eq if
+            \ stmts_
+            true \ break
+        else
+            \ stmts_
+            parse-stmt
+            \ stmts_ stmt_
+            List-add-list-1
+            \ stmts_
+            false \ continue
+        endif
+    until
+
+    \ stmts_
+;
+is parse-stmts
 
 : parse-var ( -- stmt_ )
     s" parse-var" puts-fn

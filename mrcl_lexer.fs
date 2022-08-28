@@ -244,6 +244,12 @@ create src-end_ 1 cells allot
     endif
 
     str-dup
+    s" while" str-eq if
+        str-drop
+        true exit
+    endif
+
+    str-dup
     s" _cmt" str-eq if
         str-drop
         true exit
