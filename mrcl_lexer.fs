@@ -99,8 +99,68 @@ create src-end_ 1 cells allot
     endif
 ;
 
-: match-ident ( rest_ -- num-chars flag )
-    200 \ TODO dummy
+: match-sym ( rest_ size -- num-chars flag )
+    drop
+    \ rest_
+
+    dup
+    \ rest_ rest_
+    c@
+    \ rest_ c
+    40 = if \ '('
+        \ rest_
+        drop
+        1 true exit
+    endif
+    \ rest_
+
+    dup c@ 41 = if \ ')'
+        drop 1 true exit
+    endif
+
+    dup c@ 43 = if \ '+'
+        drop 1 true exit
+    endif
+
+    dup c@ 44 = if \ ','
+        drop 1 true exit
+    endif
+
+    dup c@ 59 = if \ ';'
+        drop 1 true exit
+    endif
+
+    dup c@ 61 = if \ '='
+        \ rest_
+        dup
+        \ rest_ rest_
+        1 chars +
+        \ rest_ rest_[1]
+        c@
+        \ rest_ c1
+        61 = if \ '='
+            \ rest_
+            drop 2 true exit
+        else
+            \ rest_
+            drop 1 true exit
+        endif
+    endif
+
+    dup c@ 123 = if \ '{'
+        drop 1 true exit
+    endif
+
+    dup c@ 125 = if \ '}'
+        drop 1 true exit
+    endif
+    \ rest_
+
+    drop
+    0 false
+;
+
+: match-ident ( rest_ size -- num-chars flag )
     \ rest_ size
     non-ident-index
     \ index flag
@@ -112,7 +172,8 @@ create src-end_ 1 cells allot
     endif
 ;
 
-: match-comment ( rest_ -- num-chars flag )
+: match-comment ( rest_ size -- num-chars flag )
+    drop \ TODO
     \ rest_
     dup c@
     \ rest_ c0
@@ -193,44 +254,6 @@ create src-end_ 1 cells allot
     false exit
 ;
 
-: symbol? ( c -- bool )
-    dup 40 = if \ '('
-        drop
-        true exit
-    endif
-
-    dup 41 = if \ ')'
-        drop true exit
-    endif
-
-    dup 43 = if \ '+'
-        drop true exit
-    endif
-
-    dup 44 = if \ ','
-        drop true exit
-    endif
-
-    dup 59 = if \ ';'
-        drop true exit
-    endif
-
-    dup 61 = if \ '='
-        drop true exit
-    endif
-
-    dup 123 = if \ '{'
-        drop true exit
-    endif
-
-    dup 125 = if \ '}'
-        drop true exit
-    endif
-
-    drop
-    false
-;
-
 \ TODO mv to utils
 : take-int ( s_ size -- s_ size )
     str-dup
@@ -245,7 +268,7 @@ create src-end_ 1 cells allot
     \ s_ num-chars
 ;
 
-: print-token ( lineno kind_ size s_ size -- )
+: print-token ( lineno  kind_ size  s_ size -- )
     List-new
     \ lineno kind_ size s_ size list_
 
@@ -384,15 +407,6 @@ create src-end_ 1 cells allot
 
             \ TODO increment lineno
 
-        else dup c@ symbol? if
-            \ rest_
-            dup c@
-            \ rest_ | c
-            char-to-s
-            \ rest_ | s_ size
-            print-sym-token
-            1 chars +
-
         else dup c@ int-char? if
             \ rest_
             dup 16
@@ -428,8 +442,25 @@ create src-end_ 1 cells allot
             \ rest_+size+2
             \ rest_
 
-        else dup
+        else
+            \ rest_
+            dup
+            200 \ TODO dummy
+            \ rest_ | rest_ size
+            match-sym
+            \ rest_ | num-chars flag
+        if
+            \ rest_ | num-chars
+            str-dup
+            \ rest_ num-chars | s_ size
+            print-sym-token
+            \ rest_ num-chars
+            chars +
+            \ rest_
+
+        else drop dup
             \ rest_ | rest_
+            200 \ TODO dummy
             match-ident
             \ rest_ | index flag
         if
@@ -458,6 +489,7 @@ create src-end_ 1 cells allot
 
         else drop dup
             \ rest_ | rest_
+            100 \ TODO dummy
             match-comment
             \ rest_ | size flag
         if

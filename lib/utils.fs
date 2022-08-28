@@ -85,107 +85,6 @@ create read-char-buf_ 1 chars allot
     endif
 ;
 
-: char-index--end-p ( s_ len start-index char s2_ -- s_ len start-index char s2_ end-p )
-    \ s_ len start-index char s2_
-    4 pick
-    \ s_ len start-index char s2_ | s_
-    4 pick
-    \ s_ len start-index char s2_ | s_ len
-    chars +
-    \ s_ len start-index char s2_ | s_+len
-    1 pick
-    \ s_ len start-index char s2_ | s_+len s2_
-    <=
-    \ s_ len start-index char s2_ flag
-;
-
-: char-index-v1 ( s_ len start-index char -- index )
-    3 pick
-    \ s_ len start-index char s_
-    2 pick
-    \ s_ len start-index char s_ start-index
-    chars +
-    \ s_ len start-index char s2_
-
-    begin
-        \ s_ len start-index char s2_
-
-        char-index--end-p if ( s_ + len < s2_ )
-            -1
-            exit
-        endif
-
-        dup c@
-        \ s_ len start-index char s2_ c
-
-        2 pick = if
-            \ s_ len start-index char s2_
-            swap drop
-            \ s_ len start-index s2_
-            swap drop
-            \ s_ len s2_
-            swap drop
-            \ s_ s2_
-
-            swap
-            \ s2_ s_
-            -
-            \ index
-            exit
-        else
-            \ s_ len start-index char s2_
-            1 chars +
-            \ s_ len start-index char s2_
-        endif
-    again
-
-    panic
-;
-
-\ TODO Try using ?do/loop
-\ index に加えて flag を返すとよい？
-: char-index ( s_ start-index char -- index )
-    2 pick
-    \ s_ start-index char s_
-    2 pick
-    \ s_ start-index char s_ start-index
-    chars +
-    \ s_ start-index char s2_
-
-    begin
-        \ s_ start-index char s2_
-
-        dup c@
-        \ s_ start-index char s2_ c
-
-        dup 0 = if ( end of string )
-            -1
-            exit
-        endif
-
-
-        2 pick = if
-            \ s_ start-index char s2_
-            swap drop
-            \ s_ start-index s2_
-            swap drop
-            \ s_ s2_
-
-            swap
-            \ s2_ s_
-            -
-            \ index
-            exit
-        else
-            \ s_ start-index char s2_
-            1 chars +
-            \ s_ start-index char s2_
-        endif
-    again
-
-    panic
-;
-
 : drop-1 ( 1 0 -- 0 )
     swap drop
 ;
@@ -349,6 +248,89 @@ create read-char-buf_ 1 chars allot
     again
 ;
 
+\ TODO Try using ?do/loop
+\ index に加えて flag を返すとよい？
+: char-index ( s_ start-index char -- index )
+    2 pick
+    \ s_ start-index char s_
+    2 pick
+    \ s_ start-index char s_ start-index
+    chars +
+    \ s_ start-index char s2_
+
+    begin
+        \ s_ start-index char s2_
+
+        dup c@
+        \ s_ start-index char s2_ c
+
+        dup 0 = if ( end of string )
+            -1
+            exit
+        endif
+
+        2 pick = if
+            \ s_ start-index char s2_
+            swap drop
+            \ s_ start-index s2_
+            swap drop
+            \ s_ s2_
+
+            swap
+            \ s2_ s_
+            -
+            \ index
+            exit
+        else
+            \ s_ start-index char s2_
+            1 chars +
+            \ s_ start-index char s2_
+        endif
+    again
+
+    panic
+;
+
+\ TODO assert i < size
+: char-at ( s_ size  i -- c )
+    drop-1
+    \ s_ i
+    chars +
+    \ s_[i]
+    c@
+    \ c
+;
+
+\ index に加えて flag を返すとよい？
+: char-index-v2 ( s_ size  start-index char -- index )
+    2 pick
+    2 pick
+    \ s_ size  start-index char | size start-index
+    ?do ( start-index <= i < size )
+        \ s_ size  start-index char
+        3 str-pick i
+        \ s_ size  start-index char | s_ size  i
+        char-at
+        \ s_ size  start-index char | c
+        1 pick = if \ c == char
+            \ s_ size  start-index char
+            drop drop
+            str-drop
+            \ (empty)
+
+            i
+            \ i
+            unloop exit
+        endif
+    loop
+    \ s_ size  start-index char
+    drop drop
+    str-drop
+    \ (empty)
+
+    -1
+;
+
 : digit-char? ( c -- flag )
     dup 48 < if \ '0'
         drop false
@@ -447,7 +429,7 @@ create read-char-buf_ 1 chars allot
 : read-stdin-all-v2 ( -- src_ size )
     here
     \ src_
-    1000 chars allot
+    100000 chars allot \ TODO 多めに確保している
 
     dup
     \ src_ src_

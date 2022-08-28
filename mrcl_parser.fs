@@ -108,11 +108,12 @@ create read-tokens-end_ 1 cells allot
         \ rest_ ti
 
         1 pick
+        200 \ TODO dummy
         0
         10 \ LF
         \ rest_ ti | rest_ start-index char
 
-        char-index
+        char-index-v2
         \ rest_ ti | index
         dup 0 <= if
             \ rest_ ti
@@ -478,6 +479,27 @@ defer parse-expr
         drop-1
 
         \ new_node_
+
+    else 0 peek s" ==" Token-val-eq if
+        \ node_
+        pos++
+        parse-expr-factor
+        \ node_ rhs_
+
+        s" =="
+        \ node_ rhs_ | op_ size
+        3 pick
+        \ node_ rhs_ | op_ size  lhs_
+        3 pick
+        \ node_ rhs_ | op_ size  lhs_ rhs_
+        make-binop-expr
+        \ node_ rhs_ | expr_
+        drop-1
+        drop-1
+
+        \ new_node_
+        
+    endif
     endif
 
     \ node_

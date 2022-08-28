@@ -4,6 +4,28 @@ include lib/json.fs
 
 \ --------------------------------
 
+create label-index_ 1 cells allot
+
+: label-index@ ( -- li )
+    label-index_ @
+;
+
+: label-index! ( i -- )
+    label-index_ !
+;
+
+: label-index-init ( -- )
+    1 label-index!
+;
+
+: incr-label-index ( -- )
+    label-index@
+    1 +
+    label-index!
+;
+
+\ --------------------------------
+
 : Names-index ( names_  s_ size -- index flag )
     2 pick
     \ names_  s_ size | names_
@@ -222,6 +244,28 @@ include lib/json.fs
     ."   add_ab" cr
 ;
 
+: gen-expr-eq ( -- )
+    label-index@
+    incr-label-index
+    \ li
+
+    ."   pop reg_b" cr
+    ."   pop reg_a" cr
+
+    ."   compare" cr
+    ."   jump_eq then_" dup print-int cr
+
+    ."   cp 0 reg_a" cr \ false
+    ."   jump end_eq_" dup print-int cr
+
+    ." label then_" dup print-int cr
+    ."   cp 1 reg_a" cr \ true
+
+    ." label end_eq_" dup print-int cr
+
+    drop
+;
+
 : gen-expr-v2 ( ctx_ expr_ -- ) recursive
     dup
     \ ctx_ expr_ | expr_
@@ -331,8 +375,22 @@ include lib/json.fs
             drop
             \ (empty)
         else
+            \ ctx_ list_  s_ size
+            str-dup
+            \ ctx_ list_  s_ size | s_ size
+            s" ==" str-eq
+        if
+            \ ctx_ list_  s_ size
+            gen-expr-eq
+            \ ctx_ list_  s_ size
+            str-drop
+            drop
+            drop
+            \ (empty)
+        else
             ." 46"
             panic
+        endif
         endif
     else
         \ expr_
@@ -769,6 +827,7 @@ include lib/json.fs
     Json-parse
     \ tree_
 
+    label-index-init
     codegen
 ;
 
