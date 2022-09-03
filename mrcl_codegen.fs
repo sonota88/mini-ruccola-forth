@@ -664,6 +664,70 @@ defer gen-stmts
     drop drop
 ;
 
+: gen-when-cond-expr ( ctx_ when_ -- )
+    \ ctx_ when_
+    0
+    \ ctx_ when_ 0
+    List-get
+    \ ctx_ expr_
+    gen-expr-v2
+    \ (empty)
+;
+
+\ (case *{when-clauses})
+: gen-case ( ctx_ stmt_ -- )
+    incr-label-index
+    label-index@
+    \ ctx_ stmt_ li
+
+    1 pick
+    List-len
+    1
+    \ ctx_ stmt_ li | size 1
+    ?do
+        \ ctx_ stmt_ li
+        ."   # -->>" cr
+
+        1 pick i
+        \ ctx_ stmt_ li | stmt_ i
+        List-get-list
+        \ ctx_ stmt_ li | when_
+
+        3 pick
+        \ ctx_ stmt_ li | when_ | ctx_
+        1 pick
+        \ ctx_ stmt_ li | when_ | ctx_ when_
+        gen-when-cond-expr
+        \ ctx_ stmt_ li | when_
+
+        ."   cp 0 reg_b" cr
+        ."   compare" cr
+
+        ."   jump_eq end_when_" 1 pick print-int ." _" i 1 - print-int cr
+
+        \ ctx_ stmt_ li | when_
+        3 pick
+        1 pick
+        \ ctx_ stmt_ li | when_ | ctx_ when_
+        List-rest
+        \ ctx_ stmt_ li | when_ | ctx_ stmts_
+        gen-stmts
+        \ ctx_ stmt_ li | when_
+        drop
+        \ ctx_ stmt_ li
+
+        ."   jump end_case_" dup print-int cr
+
+        ." label end_when_" dup print-int ." _" i 1 - print-int cr
+        ."   # <<--" cr
+        \ ctx_ stmt_ li
+    loop
+
+    ." label end_case_" dup print-int cr
+
+    drop drop drop
+;
+
 : gen-stmt ( ctx_ stmt_ -- )
     s" gen-stmt" puts-fn
 
@@ -724,6 +788,15 @@ defer gen-stmts
 
     else
         str-dup
+        s" case" str-eq
+    if
+        \ ctx_ stmt_ | s_ size
+        str-drop
+        \ ctx_ stmt_
+        gen-case
+
+    else
+        str-dup
         s" _cmt" str-eq
     if
         \ ctx_ stmt_ | s_ size
@@ -738,6 +811,7 @@ defer gen-stmts
     else
         ." 287"
         panic
+    endif
     endif
     endif
     endif

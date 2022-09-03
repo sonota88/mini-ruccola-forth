@@ -220,6 +220,12 @@ create src-end_ 1 cells allot
     endif
 
     str-dup
+    s" case" str-eq if
+        str-drop
+        true exit
+    endif
+
+    str-dup
     s" func" str-eq if
         str-drop
         true exit
@@ -239,6 +245,12 @@ create src-end_ 1 cells allot
 
     str-dup
     s" var" str-eq if
+        str-drop
+        true exit
+    endif
+
+    str-dup
+    s" when" str-eq if
         str-drop
         true exit
     endif

@@ -255,8 +255,7 @@ create pos_ 1 cells allot
     \ t_  val_ size
     2 pick
     \ t_  val_ size | t_
-    2 pick
-    2 pick
+    2 str-pick
     \ t_  val_ size | t_  val_ size
 
     Token-val-eq if
@@ -273,7 +272,7 @@ create pos_ 1 cells allot
 
         Token-get-val
         ." actual("
-        \ \ val_ size
+        \ val_ size
         type
         ." )" cr
 
@@ -285,16 +284,14 @@ create pos_ 1 cells allot
 : consume ( kind_ size  val_ size -- )
     0 peek
     \ kind_ size  val_ size | t_
-    4 pick
-    4 pick
+    4 str-pick
     \ kind_ size  val_ size | t_  kind_ size
     assert-kind
     \ kind_ size  val_ size
 
     0 peek
     \ kind_ size  val_ size | t_
-    2 pick
-    2 pick
+    2 str-pick
     \ kind_ size  val_ size | t_  val_ size
     assert-val
     \ kind_ size  val_ size
@@ -309,8 +306,7 @@ create pos_ 1 cells allot
 : consume-kw ( s_ size -- )
     s" kw"
     \ val_ size | kind_ size
-    3 pick
-    3 pick
+    3 str-pick
     \ val_ size | kind_ size  kind_ size
     consume
     \ val_ size
@@ -322,8 +318,7 @@ create pos_ 1 cells allot
 : consume-sym ( s_ size -- )
     s" sym"
     \ val_ size | kind_ size
-    3 pick
-    3 pick
+    3 str-pick
     \ val_ size | kind_ size  kind_ size
     consume
     \ val_ size
@@ -398,8 +393,7 @@ create pos_ 1 cells allot
     List-new
     \ op_ size  lhs_ rhs_ | list_
 
-    4 pick
-    4 pick
+    4 str-pick
     List-add-str-1
     \ op_ size  lhs_ rhs_ | list_
 
@@ -659,6 +653,31 @@ defer parse-stmts
     \ stmt_
 ;
 
+: parse-case ( -- stmt_ )
+    s" case" consume-kw
+    s" when" consume-kw
+    s" (" consume-sym
+    pos++
+    s" )" consume-sym
+    s" {" consume-sym
+    s" }" consume-sym
+
+    List-new
+    \ stmt_
+    s" case" List-add-str-1
+    \ stmt_
+
+    List-new
+    \ stmt_ when_
+    0 List-add-int-1 \ TODO cond
+    \ stmt_ when_
+
+    \ TODO add stmts
+
+    List-add-list-1
+    \ stmt_
+;
+
 : parse-vm-comment ( -- stmt_ )
     s" _cmt" consume-kw
     s" (" consume-sym
@@ -676,8 +695,7 @@ defer parse-stmts
     List-new
     \ s_ size  stmt_
     s" _cmt" List-add-str-1
-    2 pick
-    2 pick
+    2 str-pick
     \ s_ size  stmt_ | s_ size
     List-add-str-1
     \ s_ size  stmt_
@@ -700,12 +718,14 @@ defer parse-stmts
     else 0 peek s" call"     Token-val-eq if parse-call
     else 0 peek s" call_set" Token-val-eq if parse-call-set
     else 0 peek s" while"    Token-val-eq if parse-while
+    else 0 peek s" case"     Token-val-eq if parse-case
     else 0 peek s" _cmt"     Token-val-eq if parse-vm-comment
     else
         \ (empty)
         ." 348 failed to parse statement" cr
         0 peek Json-print
         panic
+    endif
     endif
     endif
     endif
