@@ -653,29 +653,55 @@ defer parse-stmts
     \ stmt_
 ;
 
+: _parse-case-when-clause ( -- when-clause_ )
+    List-new
+    \ when_
+
+    s" when" consume-kw
+
+    s" (" consume-sym
+    parse-expr
+    \ when_ cond_
+    List-add-1
+    \ when_
+    s" )" consume-sym
+
+    s" {" consume-sym
+
+    parse-stmts
+    \ when_ stmts_
+    List-add-all-1
+    \ when_
+
+    s" }" consume-sym
+
+    \ when_
+;
+
 : parse-case ( -- stmt_ )
     s" case" consume-kw
-    s" when" consume-kw
-    s" (" consume-sym
-    pos++
-    s" )" consume-sym
-    s" {" consume-sym
-    s" }" consume-sym
 
     List-new
     \ stmt_
     s" case" List-add-str-1
     \ stmt_
 
-    List-new
-    \ stmt_ when_
-    0 List-add-int-1 \ TODO cond
-    \ stmt_ when_
+    begin
+        0 peek
+        \ stmt_ t_
+        s" when" Token-val-eq if
+            \ stmt_
+            _parse-case-when-clause
+            \ stmt_ when_
 
-    \ TODO add stmts
-
-    List-add-list-1
-    \ stmt_
+            List-add-list-1
+            \ stmt_
+            false
+        else
+            \ stmt_
+            true
+        endif
+    until
 ;
 
 : parse-vm-comment ( -- stmt_ )
