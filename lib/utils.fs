@@ -331,6 +331,14 @@ create read-char-buf_ 1 chars allot
     -1
 ;
 
+: include-char? ( s_ size  c -- flag )
+    0 swap
+    \ s_ size  start-index c
+    char-index-v2
+    \ i
+    0 >=
+;
+
 : digit-char? ( c -- flag )
     dup 48 < if \ '0'
         drop false

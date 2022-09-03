@@ -100,63 +100,38 @@ create src-end_ 1 cells allot
 ;
 
 : match-sym ( rest_ size -- num-chars flag )
-    drop
-    \ rest_
+    ( two chars )
 
-    dup
-    \ rest_ rest_
-    c@
-    \ rest_ c
-    40 = if \ '('
-        \ rest_
-        drop
-        1 true exit
-    endif
-    \ rest_
-
-    dup c@ 41 = if \ ')'
-        drop 1 true exit
-    endif
-
-    dup c@ 43 = if \ '+'
-        drop 1 true exit
-    endif
-
-    dup c@ 44 = if \ ','
-        drop 1 true exit
-    endif
-
-    dup c@ 59 = if \ ';'
-        drop 1 true exit
-    endif
-
-    dup c@ 61 = if \ '='
-        \ rest_
-        dup
-        \ rest_ rest_
+    1 pick
+    \ rest_ size | rest_
+    c@ 61 = if \ '='
+        \ rest_ size
+        1 pick
+        \ rest_ size | rest_
         1 chars +
-        \ rest_ rest_[1]
+        \ rest_ size | rest_[1]
         c@
-        \ rest_ c1
+        \ rest_ size | c1
         61 = if \ '='
-            \ rest_
-            drop 2 true exit
-        else
-            \ rest_
-            drop 1 true exit
+            \ rest_ size
+            str-drop 2 true exit \ ==
         endif
     endif
+    \ rest_ size
 
-    dup c@ 123 = if \ '{'
-        drop 1 true exit
+    ( one char )
+
+    s" +,;(){}="
+    \ rest_ size | s_ size
+    3 pick c@
+    \ rest_ size | s_ size  c0
+    include-char? if
+        \ rest_ size
+        str-drop
+        1 true exit
     endif
 
-    dup c@ 125 = if \ '}'
-        drop 1 true exit
-    endif
-    \ rest_
-
-    drop
+    str-drop
     0 false
 ;
 
@@ -173,26 +148,26 @@ create src-end_ 1 cells allot
 ;
 
 : match-comment ( rest_ size -- num-chars flag )
-    drop \ TODO
-    \ rest_
-    dup c@
-    \ rest_ c0
+    \ rest_ size
+    1 pick c@
+    \ rest_ size  c0
     47 <> if \ '/'
-        drop
+        \ rest_ size
+        str-drop
         -1 false
         exit
     endif
 
-    \ rest_
-    dup 1 chars + c@
-    \ rest_ c1
+    \ rest_ size
+    1 pick 1 chars + c@
+    \ rest_ size  c1
     47 <> if \ '/'
-        drop
+        \ rest_ size
+        str-drop
         -1 false
         exit
     endif
 
-    200 \ TODO dummy
     \ rest_ size
     lf-index
     \ index flag
@@ -417,11 +392,11 @@ create src-end_ 1 cells allot
 
         dup c@ 32 = if \ ' '
             \ rest_
-            1 chars + ( skip char )
+            1 ( skip char )
 
         else dup c@ 10 = if \ LF
             \ rest_
-            1 chars + ( skip char )
+            1 ( skip char )
 
             \ TODO increment lineno
 
@@ -437,7 +412,6 @@ create src-end_ 1 cells allot
             \ rest_ | s_ num-chars
             drop-1
             \ rest_ num-chars
-            chars +
 
         else dup c@ 34 = if \ '"'
             \ rest_
@@ -454,11 +428,8 @@ create src-end_ 1 cells allot
 
             drop-1
             \ rest_ size
-            chars +
-            \ rest_+size
-            2 chars +
-            \ rest_+size+2
-            \ rest_
+            2 +
+            \ rest_ size+2
 
         else
             \ rest_
@@ -473,8 +444,6 @@ create src-end_ 1 cells allot
             \ rest_ num-chars | s_ size
             print-sym-token
             \ rest_ num-chars
-            chars +
-            \ rest_
 
         else drop dup
             \ rest_ | rest_
@@ -492,16 +461,12 @@ create src-end_ 1 cells allot
                 \ rest_ index | rest_ index
                 print-kw-token
                 \ rest_ index
-                chars +
-                \ rest_
             else
                 \ rest_ index
                 str-dup
                 \ rest_ index | rest_ index
                 print-ident-token
                 \ rest_ index
-                chars +
-                \ rest_
             endif
 
 
@@ -512,8 +477,6 @@ create src-end_ 1 cells allot
             \ rest_ | size flag
         if
             \ rest_ size
-            chars +
-            \ rest_
 
         else
             s" 275 unexpected pattern" type-e
@@ -525,6 +488,10 @@ create src-end_ 1 cells allot
         endif
         endif
         endif
+
+        \ rest_ size
+        chars +
+        \ next_rest_
     again
 ;
 
