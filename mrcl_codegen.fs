@@ -244,6 +244,12 @@ create label-index_ 1 cells allot
     ."   add_ab" cr
 ;
 
+: gen-expr-mult ( -- )
+    ."   pop reg_b" cr
+    ."   pop reg_a" cr
+    ."   mult_ab" cr
+;
+
 : gen-expr-eq ( -- )
     incr-label-index
     label-index@
@@ -375,6 +381,19 @@ defer gen-expr-v2
         \ ctx_ list_  s_ size
         str-dup
         \ ctx_ list_  s_ size | s_ size
+        s" *" str-eq
+    if
+        \ ctx_ list_  s_ size
+        gen-expr-mult
+        \ ctx_ list_  s_ size
+        str-drop
+        drop
+        drop
+        \ (empty)
+    else
+        \ ctx_ list_  s_ size
+        str-dup
+        \ ctx_ list_  s_ size | s_ size
         s" ==" str-eq
     if
         \ ctx_ list_  s_ size
@@ -387,6 +406,7 @@ defer gen-expr-v2
     else
         ." 46"
         panic
+    endif
     endif
     endif
 ;

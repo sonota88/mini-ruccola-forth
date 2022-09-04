@@ -121,7 +121,7 @@ create src-end_ 1 cells allot
 
     ( one char )
 
-    s" +,;(){}="
+    s" +*,;(){}="
     \ rest_ size | s_ size
     3 pick c@
     \ rest_ size | s_ size  c0

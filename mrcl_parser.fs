@@ -456,15 +456,18 @@ defer parse-expr
         true
     else
         \ s_ size
-        str-dup s" ==" str-eq
+        str-dup s" *" str-eq
     if
-        \ s_ size
-        str-drop
-        true
+        str-drop true
+
+    else str-dup s" ==" str-eq if
+        str-drop true
+
     else
         \ s_ size
         str-drop
         false
+    endif
     endif
     endif
 ;
