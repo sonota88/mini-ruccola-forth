@@ -447,6 +447,28 @@ defer parse-expr
     endif
 ;
 
+: binop? ( t_ -- bool )
+    Token-get-val
+    \ s_ size
+    str-dup s" +" str-eq if
+        \ s_ size
+        str-drop
+        true
+    else
+        \ s_ size
+        str-dup s" ==" str-eq
+    if
+        \ s_ size
+        str-drop
+        true
+    else
+        \ s_ size
+        str-drop
+        false
+    endif
+    endif
+;
+
 ( parse-expr )
 :noname  ( -- expr_node_ )
     s" parse-expr" puts-fn
@@ -454,46 +476,29 @@ defer parse-expr
     parse-expr-factor
     \ expr_
 
-    \ node_
-    0 peek s" +" Token-val-eq if
-        \ node_
+    0 peek binop? if
+        \ expr_
+        0 peek Token-get-val
+        \ expr_ | s_ size
         pos++
-        parse-expr-factor
-        \ node_ rhs_
 
-        s" +"
-        \ node_ rhs_ | op_ size
+        parse-expr-factor
+        \ expr_  s_ size  rhs_
+
+        2 str-pick
+        \ node_  s_ size  rhs_ | op_ size
+        5 pick
+        \ node_  s_ size  rhs_ | op_ size  lhs_
         3 pick
-        \ node_ rhs_ | op_ size  lhs_
-        3 pick
-        \ node_ rhs_ | op_ size  lhs_ rhs_
+        \ node_  s_ size  rhs_ | op_ size  lhs_ rhs_
         make-binop-expr
-        \ node_ rhs_ | expr_
+        \ node_  s_ size  rhs_ | expr_
+        drop-1
+        drop-1
         drop-1
         drop-1
 
         \ new_node_
-
-    else 0 peek s" ==" Token-val-eq if
-        \ node_
-        pos++
-        parse-expr-factor
-        \ node_ rhs_
-
-        s" =="
-        \ node_ rhs_ | op_ size
-        3 pick
-        \ node_ rhs_ | op_ size  lhs_
-        3 pick
-        \ node_ rhs_ | op_ size  lhs_ rhs_
-        make-binop-expr
-        \ node_ rhs_ | expr_
-        drop-1
-        drop-1
-
-        \ new_node_
-        
-    endif
     endif
 
     \ node_
