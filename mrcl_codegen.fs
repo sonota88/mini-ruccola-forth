@@ -261,13 +261,35 @@ create label-index_ 1 cells allot
     ."   compare" cr
     ."   jump_eq then_" dup print-int cr
 
-    ."   cp 0 reg_a" cr \ false
+    ."   cp 0 reg_a" cr \ neq => false
     ."   jump end_eq_" dup print-int cr
 
     ." label then_" dup print-int cr
-    ."   cp 1 reg_a" cr \ true
+    ."   cp 1 reg_a" cr \ eq => true
 
     ." label end_eq_" dup print-int cr
+
+    drop
+;
+
+: gen-expr-neq ( -- )
+    incr-label-index
+    label-index@
+    \ li
+
+    ."   pop reg_b" cr
+    ."   pop reg_a" cr
+
+    ."   compare" cr
+    ."   jump_eq then_" dup print-int cr
+
+    ."   cp 1 reg_a" cr \ neq => true
+    ."   jump end_neq_" dup print-int cr
+
+    ." label then_" dup print-int cr
+    ."   cp 0 reg_a" cr \ eq => false
+
+    ." label end_neq_" dup print-int cr
 
     drop
 ;
@@ -404,8 +426,22 @@ defer gen-expr-v2
         drop
         \ (empty)
     else
+        \ ctx_ list_  s_ size
+        str-dup
+        \ ctx_ list_  s_ size | s_ size
+        s" !=" str-eq
+    if
+        \ ctx_ list_  s_ size
+        gen-expr-neq
+        \ ctx_ list_  s_ size
+        str-drop
+        drop
+        drop
+        \ (empty)
+    else
         ." 46"
         panic
+    endif
     endif
     endif
     endif

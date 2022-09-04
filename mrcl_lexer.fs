@@ -119,6 +119,20 @@ create src-end_ 1 cells allot
     endif
     \ rest_ size
 
+    1 pick
+    \ rest_ size | rest_
+    c@ 33 = if \ '!'
+        \ rest_ size
+        1 pick
+        1 chars +
+        c@
+        61 = if \ '='
+            \ rest_ size
+            str-drop 2 true exit \ !=
+        endif
+    endif
+    \ rest_ size
+
     ( one char )
 
     s" +*,;(){}="

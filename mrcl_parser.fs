@@ -463,10 +463,14 @@ defer parse-expr
     else str-dup s" ==" str-eq if
         str-drop true
 
+    else str-dup s" !=" str-eq if
+        str-drop true
+
     else
         \ s_ size
         str-drop
         false
+    endif
     endif
     endif
     endif
