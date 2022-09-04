@@ -483,30 +483,35 @@ defer parse-expr
     parse-expr-factor
     \ expr_
 
-    0 peek binop? if
-        \ expr_
-        0 peek Token-get-val
-        \ expr_ | s_ size
-        pos++
+    begin
+        0 peek binop? if
+            \ expr_
+            0 peek Token-get-val
+            \ expr_ | s_ size
+            pos++
 
-        parse-expr-factor
-        \ expr_  s_ size  rhs_
+            parse-expr-factor
+            \ expr_  s_ size  rhs_
 
-        2 str-pick
-        \ node_  s_ size  rhs_ | op_ size
-        5 pick
-        \ node_  s_ size  rhs_ | op_ size  lhs_
-        3 pick
-        \ node_  s_ size  rhs_ | op_ size  lhs_ rhs_
-        make-binop-expr
-        \ node_  s_ size  rhs_ | expr_
-        drop-1
-        drop-1
-        drop-1
-        drop-1
+            2 str-pick
+            \ node_  s_ size  rhs_ | op_ size
+            5 pick
+            \ node_  s_ size  rhs_ | op_ size  lhs_
+            3 pick
+            \ node_  s_ size  rhs_ | op_ size  lhs_ rhs_
+            make-binop-expr
+            \ node_  s_ size  rhs_ | expr_
+            drop-1
+            drop-1
+            drop-1
+            drop-1
 
-        \ new_node_
-    endif
+            \ new_node_
+            false
+        else
+            true
+        endif
+    until
 
     \ node_
 ;
