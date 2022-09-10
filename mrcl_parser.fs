@@ -388,19 +388,19 @@ create pos_ 1 cells allot
     until
 ;
 
-: make-binop-expr ( op_ size  lhs_ rhs_ -- expr_ )
-    \ op_ size  lhs_ rhs_
+: make-binop-expr ( lhs_  op_ size  rhs_ -- expr_ )
+    \ lhs_  op_ size  rhs_
     List-new
-    \ op_ size  lhs_ rhs_ | list_
+    \ lhs_  op_ size  rhs_ | list_
 
-    4 str-pick
+    3 str-pick
     List-add-str-1
-    \ op_ size  lhs_ rhs_ | list_
+    \ lhs_  op_ size  rhs_ | list_
 
-    2 pick List-add-1
-    \ op_ size  lhs_ rhs_ | list_
+    4 pick List-add-1
+    \ lhs_  op_ size  rhs_ | list_
     1 pick List-add-1
-    \ op_ size  lhs_ rhs_ | list_
+    \ lhs_  op_ size  rhs_ | list_
     Node-new-list
     \ op_ size  lhs_ rhs_ | node_
     drop-1
@@ -493,20 +493,9 @@ defer parse-expr
             parse-expr-factor
             \ expr_  s_ size  rhs_
 
-            2 str-pick
-            \ node_  s_ size  rhs_ | op_ size
-            5 pick
-            \ node_  s_ size  rhs_ | op_ size  lhs_
-            3 pick
-            \ node_  s_ size  rhs_ | op_ size  lhs_ rhs_
             make-binop-expr
-            \ node_  s_ size  rhs_ | expr_
-            drop-1
-            drop-1
-            drop-1
-            drop-1
+            \ new_expr_
 
-            \ new_node_
             false
         else
             true

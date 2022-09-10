@@ -52,31 +52,43 @@ create src-end_ 1 cells allot
 
 : non-ident-index ( s_ size -- index flag )
     \ s_ size
-    0
-    \ s_ | size 0
+    dup 1 + 0
+    \ s_ size | size+1 0
     ?do
-        \ s_
-        dup
-        \ s_ | s_
-        i chars +
-        \ s_ | s_+i
-        c@
-        \ s_ | c
+        \ s_ size
 
-        ident-char? \ s_ | flag
+        dup i
+        \ s_ size | size i
+        = if
+            str-drop
+            i true
+
+            unloop exit
+        endif
+
+        \ s_ size
+
+        1 pick
+        \ s_ size | s_
+        i chars +
+        \ s_ size | s_+i
+        c@
+        \ s_ size | c
+
+        ident-char? \ s_ size | flag
         if
             \ (continue)
         else
-            \ s_
-            drop
+            \ s_ size
+            str-drop
             i true
 
             unloop exit
         endif
     loop
 
-    \ s_
-    drop
+    \ s_ size
+    str-drop
     -1 false
 ;
 
@@ -383,6 +395,25 @@ create src-end_ 1 cells allot
     \ s_ size
 ;
 
+: move-pos ( s_ size  num-chars -- s_ size )
+    2 pick
+    \ s_ size  nc | s_
+    1 pick
+    \ s_ size  nc | s_ nc
+    chars +
+    \ s_ size  nc | s2_
+    2 pick
+    \ s_ size  nc | s2_ size
+    2 pick
+    \ s_ size  nc | s2_ size nc
+    -
+    \ s_ size  nc | s2_ size2
+    drop-2
+    drop-2
+    drop-2
+    \ s2_ size2
+;
+
 : main
     read-stdin-all-v2
     \ src_ size
@@ -393,106 +424,110 @@ create src-end_ 1 cells allot
     \ src_ size | src_end_
     set-src-end
     \ src_ size
-
-    drop
-    \ src_
-    \ rest_
+    \ rest_ size
 
     begin
-        dup end? if
+        1 pick end? if
             exit
         endif
-        \ rest_
+        \ rest_ size
 
-        dup c@ 32 = if \ ' '
-            \ rest_
+        1 pick c@ 32 = if \ ' '
+            \ rest_ size
             1 ( skip char )
 
-        else dup c@ 10 = if \ LF
-            \ rest_
+        else 1 pick c@ 10 = if \ LF
+            \ rest_ size
             1 ( skip char )
 
             \ TODO increment lineno
 
-        else dup c@ int-char? if
-            \ rest_
-            dup 16
-            \ rest_ | rest_ dummy-size
-            take-int
-            \ rest_ | s_ num-chars
-            str-dup
-            \ rest_ | s_ num-chars | s_ num-chars
-            print-int-token
-            \ rest_ | s_ num-chars
-            drop-1
-            \ rest_ num-chars
-
-        else dup c@ 34 = if \ '"'
-            \ rest_
-
-            dup 200
-            \ rest_ | rest_ dummy-size
-            take-str
-            \ rest_ | s_ size
-
-            str-dup
-            \ rest_ | s_ size | s_ size
-            print-str-token
-            \ rest_ | s_ size
-
-            drop-1
+        else
+            1 pick c@ int-char? if
             \ rest_ size
+            str-dup
+            \ rest_ size | rest_ size
+            take-int
+            \ rest_ size | s_ num-chars
+            str-dup
+            \ rest_ size | s_ num-chars | s_ num-chars
+            print-int-token
+            \ rest_ size | s_ num-chars
+            drop-1
+            \ rest_ size num-chars
+
+        else 1 pick c@ 34 = if \ '"'
+            \ rest_ size
+
+            str-dup
+            \ rest_ size | rest_ size
+            take-str
+            \ rest_ size | s_ size
+
+            str-dup
+            \ rest_ size | s_ size | s_ size
+            print-str-token
+            \ rest_ size | s_ size
+
+            drop-1
+            \ rest_ size  size
             2 +
-            \ rest_ size+2
+            \ rest_ size  size+2
 
         else
-            \ rest_
-            dup
-            200 \ TODO dummy
-            \ rest_ | rest_ size
+            \ rest_ size
+            str-dup
+            \ rest_ size | rest_ size
             match-sym
-            \ rest_ | num-chars flag
+            \ rest_ size | num-chars flag
         if
-            \ rest_ | num-chars
-            str-dup
-            \ rest_ num-chars | s_ size
+            \ rest_ size | num-chars
+            2 pick
+            \ rest_ size  num-chars | s_
+            1 pick
+            \ rest_ size  num-chars | s_ size
             print-sym-token
-            \ rest_ num-chars
+            \ rest_ size  num-chars
 
-        else drop dup
-            \ rest_ | rest_
-            200 \ TODO dummy
+        else
+            drop str-dup
+            \ rest_ size | rest_ size
             match-ident
-            \ rest_ | index flag
+            \ rest_ size | index flag
         if
-            \ rest_ index
+            \ rest_ size  index
 
-            str-dup
-            \ rest_ index | rest_ index
+            2 pick
+            \ rest_ size  index | rest_
+            1 pick
+            \ rest_ size  index | rest_ index
             kw? if
-                \ rest_ index
-                str-dup
-                \ rest_ index | rest_ index
+                \ rest_ size index
+                2 pick 1 pick
+                \ rest_ size index | rest_ index
                 print-kw-token
-                \ rest_ index
+                \ rest_ size index
             else
-                \ rest_ index
-                str-dup
-                \ rest_ index | rest_ index
+                \ rest_ size index
+                2 pick 1 pick
+                \ rest_ size index | rest_ index
                 print-ident-token
-                \ rest_ index
+                \ rest_ size index
             endif
 
 
-        else drop dup
-            \ rest_ | rest_
-            100 \ TODO dummy
+        else drop str-dup
+            \ rest_ size | rest_ size
             match-comment
-            \ rest_ | size flag
+            \ rest_ size | size flag
         if
-            \ rest_ size
+            \ rest_ size size
 
         else
+            \ rest_ size | rest_
+            47 emit-e
+            2 pick 2 pick type-e
+            47 emit-e
             s" 275 unexpected pattern" type-e
             panic
         endif
@@ -503,9 +538,9 @@ create src-end_ 1 cells allot
         endif
         endif
 
-        \ rest_ size
-        chars +
-        \ next_rest_
+        \ rest_ size delta
+        move-pos
+        \ next_rest_ next_size
     again
 ;
 

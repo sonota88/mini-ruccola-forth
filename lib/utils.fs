@@ -369,31 +369,40 @@ create read-char-buf_ 1 chars allot
 
 : non-int-index ( s_ size -- index ok )
     \ s_ size
-    0
-    \ s_ | size 0
+    dup 1 + 0
+    \ s_ size | size+1 0
     ?do
-        \ s_
-        dup
-        \ s_ | s_
-        i chars +
-        \ s_ | s_+i
-        c@
-        \ s_ | c
+        \ s_ size
 
-        int-char? \ s_ | flag
+        dup i = if
+            \ s_ size
+            str-drop
+            i true
+
+            unloop exit
+        endif
+
+        1 pick
+        \ s_ size | s_
+        i chars +
+        \ s_ size | s_[i]
+        c@
+        \ s_ size | c
+
+        int-char? \ s_ size | flag
         if
             \ (continue)
         else
-            \ s_
-            drop
+            \ s_ size
+            str-drop
             i true
 
             unloop exit
         endif
     loop
 
-    \ s_
-    drop
+    \ s_ size
+    str-drop
     -1 false
 ;
 
