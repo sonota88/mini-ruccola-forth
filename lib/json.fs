@@ -182,146 +182,140 @@
     \ node_ num-chars
 ;
 
-: Json-parse-list ( rest_ -- rest_ list_ ) recursive
-    \ s_
+: Json-parse-list ( rest_ size -- rest_ size  list_ ) recursive
+    \ s_ size
 
     List-new
-    \ s_ list_
-    swap
-    \ list_ s_
+    \ s_ size  list_
+    2 str-pick
+    \ s_ size | list_  s_ size
+    drop-3
+    drop-3
+    \ list_  s_ size
 
-    1 chars + ( skip first '[' )
-    \ list_ s_
+    1 str-rest ( skip first '[' )
+    \ list_  s_ size
 
     begin
-        dup
-        \ list_ s_ s_
+        \ list_  s_ size
+
+        1 pick
+        \ list_  s_ size  s_
         c@
-        \ list_ s_ c
+        \ list_  s_ size  c
 
-        dup 0 = if
-            \ list_ s_ c
-            drop drop
-
-            panic
-
-        else dup 91 = if \ '['
-            \ list_ s_ c
+        dup 91 = if \ '['
+            \ list_  s_ size  c
             drop
-            \ list_ s_
-            dup
-            \ list_ s_ s_
+            \ list_  s_ size
+            str-dup
+            \ list_  s_ size | s_ size
             Json-parse-list ( recursion )
-            \ list_ s_ | rest_ inner-list_
+            \ list_  s_ size | rest_ size  inner-list_
 
-            3 pick
-            \ list_ s_ | rest_ inner-list_ | list_
+            5 pick
+            \ list_ s_ size | rest_ size  inner-list_ | list_
             1 pick
-            \ list_ s_ | rest_ inner-list_ | list_ inner-list_
+            \ list_ s_ size | rest_ size  inner-list_ | list_ inner-list_
             List-add-list-1
-            \ list_ s_ | rest_ inner-list_ | list_
+            \ list_ s_ size | rest_ size  inner-list_ | list_
 
             drop drop
-            \ list_ s_ rest_
-            2 pick
-            \ list_ s_ | rest_ list_
+            \ list_  s_ size | rest_ size
             drop-2
             drop-2
-            \ rest_ list_
-            swap
-            \ list_ rest_
+            \ list_  rest_ size
 
         else dup 93 = if \ ']'
-            \ ." 124 ]" cr
-
-            \ list_ s_ c
+            \ list_  s_ size  c
             drop
-            \ list_ s_
-            1 chars +
-            \ list_ s_
-
-            swap
+            \ list_  s_ size
+            1 str-rest
+            \ list_  s_+1 size-1
+            2 pick
+            \ list_  s_+1 size-1  list_
+            drop-3
+            \ s_+1 size-1  list_
             exit
 
         else dup 10 = if \ LF
-            \ ." 137 LF" cr
-            \ list_ s_ c
+            \ list_  s_ size  c
             drop
-            \ list_ s_
-            1 chars +
+            \ list_  s_ size
+            1 str-rest
+            \ list_  s_+1 size-1
                     
         else dup 32 = if \ SPC
-            \ list_ s_ c
+            \ list_  s_ size  c
             drop
-            \ list_ s_
-            1 chars +
+            \ list_  s_ size
+            1 str-rest
+            \ list_  s_+1 size-1
 
         else dup 44 = if \ ','
-            \ list_ s_ c
+            \ list_  s_ size  c
             drop
-            \ list_ s_
-            1 chars +
+            \ list_  s_ size
+            1 str-rest
+            \ list_  s_+1 size-1
 
         else dup int-char? if
-            \ list_ s_ c
+            \ list_  s_ size  c
             drop
-            \ list_ s_
+            \ list_  s_ size
 
-            dup
-            \ list_ s_ s_
-            10000 ( TODO )
-            \ list_ s_ s_ size
+            str-dup
+            \ list_  s_ size | s_ size
             consume-int
-            \ list_ s_ node_ num-chars
+            \ list_  s_ size | node_ num-chars
 
-            3 pick
-            \ list_ s_ node_ num-chars | list_
+            4 pick
+            \ list_ s_ size  node_ num-chars | list_
             2 pick
-            \ list_ s_ node_ num-chars | list_ node_
+            \ list_ s_ size  node_ num-chars | list_ node_
 
             List-add-1
-            \ list_ s_ node_ num-chars | list_
+            \ list_ s_ size  node_ num-chars | list_
 
             drop
-            \ list_ s_ node_ num-chars
-            2 pick
-            \ list_ s_ node_ num-chars s_
-            1 pick
-            \ list_ s_ node_ num-chars s_ num-chars
+            \ list_ s_ size node_ num-chars
 
-            chars +
-            \ list_ s_ node_ num-chars s_+{num-chars}
-            drop-1
-            \ list_ s_ node_ s_+{num-chars}
-            drop-1
-            \ list_ s_ s_+{num-chars}
-            drop-1
-            \ list_ s_+{num-chars}
-            \ list_ next_s_
+            3 str-pick
+            \ list_ s_ size node_ num-chars | s_ size
+            2 pick
+            \ list_ s_ size node_ num-chars | s_ size num-chars
+            str-rest
+            \ list_ s_ size node_ num-chars | s_+n size-n
+            drop-2
+            drop-2
+            drop-2
+            drop-2
+            \ list_ s_+n size-n
 
         else dup 34 = if \ '"'
-            \ list_ s_ c
+            \ list_  s_ size  c
             drop
-            \ list_ s_
+            \ list_  s_ size
 
-            dup 200
-            \ list_ s_ | s_ dummy-size
+            str-dup
+            \ list_  s_ size  s_ size
             take-str
-            \ list_ s_ | s_ size
-            3 pick
-            \ list_ s_ | s_ size | list_
-            2 pick
-            2 pick
-            \ list_ s_ | s_ size | list_  s_ size
-            List-add-str-0
-            \ list_ s_ | s_ size
+            \ list_ s_ size | s_ size
+            4 pick
+            \ list_ s_ size | s_ size | list_
 
+            2 str-pick
+            \ list_ s_ size | s_ size | list_  s_ size
+            List-add-str-0
+            \ list_ s_ size | s_ size
+
+            \ list_ s_ size | s_ size
             drop-1
-            \ list_ s_ size
-            chars +
-            \ list_ rest_
-            2 chars +
-            \ list_ rest_
+            \ list_ s_ size  size
+            2 +
+            \ list_ s_ size  size+2
+            str-rest
+            \ list_ s_+n size-n
 
         else
             ." ("
@@ -337,16 +331,15 @@
         endif
         endif
         endif
-        endif
-    again
 
-    \ list_
+        \ list_  rest_ size
+    again
 ;
 
 : Json-parse ( src_ size -- list_ )
-    drop \ TODO
     Json-parse-list
-    \ rest_ list_
-    swap drop
+    \ rest_ size  list_
+    drop-1
+    drop-1
     \ list_
 ;

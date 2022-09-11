@@ -395,25 +395,6 @@ create src-end_ 1 cells allot
     \ s_ size
 ;
 
-: move-pos ( s_ size  num-chars -- s_ size )
-    2 pick
-    \ s_ size  nc | s_
-    1 pick
-    \ s_ size  nc | s_ nc
-    chars +
-    \ s_ size  nc | s2_
-    2 pick
-    \ s_ size  nc | s2_ size
-    2 pick
-    \ s_ size  nc | s2_ size nc
-    -
-    \ s_ size  nc | s2_ size2
-    drop-2
-    drop-2
-    drop-2
-    \ s2_ size2
-;
-
 : main
     read-stdin-all-v2
     \ src_ size
@@ -539,7 +520,7 @@ create src-end_ 1 cells allot
         endif
 
         \ rest_ size delta
-        move-pos
+        str-rest
         \ next_rest_ next_size
     again
 ;

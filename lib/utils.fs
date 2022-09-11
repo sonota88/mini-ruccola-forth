@@ -101,6 +101,12 @@ create read-char-buf_ 1 chars allot
     r> r> r>
 ;
 
+: drop-4 ( 4 3 2 1 0 -- 3 2 1 0 )
+    >r >r >r >r
+    drop
+    r> r> r> r>
+;
+
 : str-eq ( sa_ size  sb_ size -- bool )
     compare \ => 等しい場合 0
     0 =
@@ -246,6 +252,25 @@ create read-char-buf_ 1 chars allot
             1 chars +
         endif
     again
+;
+
+: str-rest ( s_ size  num-chars -- s_ size )
+    2 pick
+    \ s_ size  nc | s_
+    1 pick
+    \ s_ size  nc | s_ nc
+    chars +
+    \ s_ size  nc | s2_
+    2 pick
+    \ s_ size  nc | s2_ size
+    2 pick
+    \ s_ size  nc | s2_ size nc
+    -
+    \ s_ size  nc | s2_ size2
+    drop-2
+    drop-2
+    drop-2
+    \ s2_ size2
 ;
 
 \ TODO Try using ?do/loop
