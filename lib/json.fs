@@ -182,6 +182,62 @@
     \ node_ num-chars
 ;
 
+: Json-parse-int ( list_  s_ size -- list_  s_ size )
+    \ list_  s_ size
+
+    str-dup
+    \ list_  s_ size | s_ size
+    consume-int
+    \ list_  s_ size | node_ num-chars
+
+    4 pick
+    \ list_ s_ size  node_ num-chars | list_
+    2 pick
+    \ list_ s_ size  node_ num-chars | list_ node_
+
+    List-add-1
+    \ list_ s_ size  node_ num-chars | list_
+
+    drop
+    \ list_ s_ size node_ num-chars
+
+    3 str-pick
+    \ list_ s_ size node_ num-chars | s_ size
+    2 pick
+    \ list_ s_ size node_ num-chars | s_ size num-chars
+    str-rest
+    \ list_ s_ size node_ num-chars | s_+n size-n
+    drop-2
+    drop-2
+    drop-2
+    drop-2
+    \ list_ s_+n size-n
+;
+
+: Json-parse-str ( list_  s_ size -- list_  s_ size )
+    \ list_  s_ size
+
+    str-dup
+    \ list_  s_ size  s_ size
+    take-str
+    \ list_ s_ size | s_ size
+    4 pick
+    \ list_ s_ size | s_ size | list_
+
+    2 str-pick
+    \ list_ s_ size | s_ size | list_  s_ size
+    List-add-str-0
+    \ list_ s_ size | s_ size
+
+    \ list_ s_ size | s_ size
+    drop-1
+    \ list_ s_ size  size
+    2 +
+    \ list_ s_ size  size+2
+    str-rest
+    \ list_ s_+n size-n
+;
+
 : Json-parse-list ( rest_ size -- rest_ size  list_ ) recursive
     \ s_ size
 
@@ -263,58 +319,14 @@
             \ list_  s_ size  c
             drop
             \ list_  s_ size
-
-            str-dup
-            \ list_  s_ size | s_ size
-            consume-int
-            \ list_  s_ size | node_ num-chars
-
-            4 pick
-            \ list_ s_ size  node_ num-chars | list_
-            2 pick
-            \ list_ s_ size  node_ num-chars | list_ node_
-
-            List-add-1
-            \ list_ s_ size  node_ num-chars | list_
-
-            drop
-            \ list_ s_ size node_ num-chars
-
-            3 str-pick
-            \ list_ s_ size node_ num-chars | s_ size
-            2 pick
-            \ list_ s_ size node_ num-chars | s_ size num-chars
-            str-rest
-            \ list_ s_ size node_ num-chars | s_+n size-n
-            drop-2
-            drop-2
-            drop-2
-            drop-2
+            Json-parse-int
             \ list_ s_+n size-n
 
         else dup 34 = if \ '"'
             \ list_  s_ size  c
             drop
             \ list_  s_ size
-
-            str-dup
-            \ list_  s_ size  s_ size
-            take-str
-            \ list_ s_ size | s_ size
-            4 pick
-            \ list_ s_ size | s_ size | list_
-
-            2 str-pick
-            \ list_ s_ size | s_ size | list_  s_ size
-            List-add-str-0
-            \ list_ s_ size | s_ size
-
-            \ list_ s_ size | s_ size
-            drop-1
-            \ list_ s_ size  size
-            2 +
-            \ list_ s_ size  size+2
-            str-rest
+            Json-parse-str
             \ list_ s_+n size-n
 
         else
