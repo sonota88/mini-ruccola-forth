@@ -509,7 +509,19 @@ create read-char-buf_ 1 chars allot
     again
 ;
 
-: take-str ( s_ size -- s_ size )
+: str-take-int ( s_ size -- s_ size )
+    str-dup
+    \ s_ size  s_ size
+    non-int-index
+    \ s_ size | index ok
+
+    check-and-panic
+    \ s_ size  index
+    drop-1
+    \ s_ num-chars
+;
+
+: str-take-str ( s_ size -- s_ size )
     1 pick
     \ s_ size | s_
     1 34 char-index ( find double quote at end of string )
@@ -528,4 +540,10 @@ create read-char-buf_ 1 chars allot
     drop-2
     drop-2
     \ s_+1 index-1
+;
+
+: starts-with-char? ( s_ size  c -- s_ size  bool )
+    2 pick c@
+    \ s_ size  c c0
+    =
 ;

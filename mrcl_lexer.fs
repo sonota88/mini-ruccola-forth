@@ -273,20 +273,6 @@ create src-end_ 1 cells allot
     false exit
 ;
 
-\ TODO mv to utils
-: take-int ( s_ size -- s_ size )
-    str-dup
-    \ s_ size  s_ size
-    drop-2
-    \ s_  s_ size
-
-    non-int-index
-    \ s_ index ok
-    check-and-panic
-    \ s_ index
-    \ s_ num-chars
-;
-
 : print-token ( lineno  kind_ size  s_ size -- )
     List-new
     \ lineno kind_ size s_ size list_
@@ -318,7 +304,7 @@ create src-end_ 1 cells allot
     cr
 ;
 
-: print-kw-token ( val_ size -- )
+: print-kw ( val_ size -- )
     1 s" kw"
     \ val_ size | 1  kind_ size
     4 pick
@@ -330,7 +316,7 @@ create src-end_ 1 cells allot
     str-drop
 ;
 
-: print-ident-token ( rest_ size -- )
+: print-ident ( rest_ size -- )
     1 s" ident"
     \ rest_ size | 1  kind_ size
     4 pick
@@ -342,7 +328,7 @@ create src-end_ 1 cells allot
     str-drop
 ;
 
-: print-sym-token ( s_ size -- )
+: print-sym ( s_ size -- )
     1 s" sym"
     \ s_ size | 1 kind_ size
     4 pick
@@ -355,7 +341,7 @@ create src-end_ 1 cells allot
     str-drop
 ;
 
-: print-int-token ( s_ size -- )
+: print-int ( s_ size -- )
     1 s" int"
     \ s_ size | 1 kind_ size
     4 pick
@@ -368,7 +354,7 @@ create src-end_ 1 cells allot
     str-drop
 ;
 
-: print-str-token ( s_ size -- )
+: print-str ( s_ size -- )
     1 s" str"
     \ s_ size | 1 kind_ size
     4 pick
@@ -395,6 +381,72 @@ create src-end_ 1 cells allot
     \ s_ size
 ;
 
+: lex-spc? ( s_ size -- s_ size  bool )
+    32 starts-with-char?
+;
+
+: lex-lf? ( s_ size -- s_ size  bool )
+    10 starts-with-char?
+;
+
+: lex-dq? ( s_ size -- s_ size  bool )
+    34 starts-with-char?
+;
+
+: lex-int? ( s_ size -- s_ size  bool )
+    1 pick c@
+    \ s_ size  c0
+    int-char?
+;
+
+: lex-sym? ( s_ size -- s_ size  [num-chars] bool )
+    \ rest_ size
+    str-dup
+    \ rest_ size | rest_ size
+    match-sym
+    \ rest_ size | num-chars flag
+    dup
+    if
+        \ rest_ size | num-chars flag
+    else
+        \ rest_ size | num-chars flag
+        drop drop false
+        \ rest_ size  false
+    endif
+;
+
+: lex-ident? ( s_ size -- s_ size  [num-chars] bool )
+    \ rest_ size
+    str-dup
+    \ rest_ size | rest_ size
+    match-ident
+    \ rest_ size | num-chars flag
+    dup
+    if
+        \ rest_ size | num-chars flag
+    else
+        \ rest_ size | num-chars flag
+        drop drop false
+        \ rest_ size  false
+    endif
+;
+
+: lex-comment? ( s_ size -- s_ size  [num-chars] bool )
+    \ rest_ size
+    str-dup
+    \ rest_ size | rest_ size
+    match-comment
+    \ rest_ size | num-chars flag
+    dup
+    if
+        \ rest_ size | num-chars flag
+    else
+        \ rest_ size | num-chars flag
+        drop drop false
+        \ rest_ size  false
+    endif
+;
+
 : main
     read-stdin-all-v2
     \ src_ size
@@ -413,41 +465,40 @@ create src-end_ 1 cells allot
         endif
         \ rest_ size
 
-        1 pick c@ 32 = if \ ' '
+        lex-spc? if
             \ rest_ size
             1 ( skip char )
 
-        else 1 pick c@ 10 = if \ LF
+        else lex-lf? if
             \ rest_ size
             1 ( skip char )
 
             \ TODO increment lineno
 
-        else
-            1 pick c@ int-char? if
+        else lex-int? if
             \ rest_ size
             str-dup
             \ rest_ size | rest_ size
-            take-int
+            str-take-int
             \ rest_ size | s_ num-chars
             str-dup
             \ rest_ size | s_ num-chars | s_ num-chars
-            print-int-token
+            print-int
             \ rest_ size | s_ num-chars
             drop-1
             \ rest_ size num-chars
 
-        else 1 pick c@ 34 = if \ '"'
+        else lex-dq? if
             \ rest_ size
 
             str-dup
             \ rest_ size | rest_ size
-            take-str
+            str-take-str
             \ rest_ size | s_ size
 
             str-dup
             \ rest_ size | s_ size | s_ size
-            print-str-token
+            print-str
             \ rest_ size | s_ size
 
             drop-1
@@ -455,27 +506,16 @@ create src-end_ 1 cells allot
             2 +
             \ rest_ size  size+2
 
-        else
-            \ rest_ size
-            str-dup
-            \ rest_ size | rest_ size
-            match-sym
-            \ rest_ size | num-chars flag
-        if
+        else lex-sym? if
             \ rest_ size | num-chars
             2 pick
             \ rest_ size  num-chars | s_
             1 pick
             \ rest_ size  num-chars | s_ size
-            print-sym-token
+            print-sym
             \ rest_ size  num-chars
 
-        else
-            drop str-dup
-            \ rest_ size | rest_ size
-            match-ident
-            \ rest_ size | index flag
-        if
+        else lex-ident? if
             \ rest_ size  index
 
             2 pick
@@ -486,28 +526,23 @@ create src-end_ 1 cells allot
                 \ rest_ size index
                 2 pick 1 pick
                 \ rest_ size index | rest_ index
-                print-kw-token
+                print-kw
                 \ rest_ size index
             else
                 \ rest_ size index
                 2 pick 1 pick
                 \ rest_ size index | rest_ index
-                print-ident-token
+                print-ident
                 \ rest_ size index
             endif
 
-
-        else drop str-dup
-            \ rest_ size | rest_ size
-            match-comment
-            \ rest_ size | size flag
-        if
-            \ rest_ size size
+        else lex-comment? if
+            \ rest_ size  size
 
         else
-            \ rest_ size | rest_
+            \ rest_ size
             47 emit-e
-            2 pick 2 pick type-e
+            type-e
             47 emit-e
             s" 275 unexpected pattern" type-e
             panic

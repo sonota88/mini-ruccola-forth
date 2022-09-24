@@ -285,20 +285,6 @@ node
     \ list_
 ;
 
-: List-add-str ( list_ s_ -- list_ )
-    \ ." List-add-str" cr
-
-    \ list_ s_
-    dup str-len
-    \ list_ s_ size
-    Node-new-str \ TODO size が必要 ( s_ size -- node_ )
-    \ list_ node_
-    \ 100 dump panic
-
-    List-add-1
-    \ list_
-;
-
 : List-add-str-1 ( list_ s_ len -- list_ )
     \ list_ s_ len
     Node-new-str
@@ -323,12 +309,11 @@ node
     \ list_parent_
 ;
 
-\ : List-add-list-0 ( list_parent_ list_child_ -- )
-\     List-add-list-0
-\     \ list_parent_
-\     drop
-\     \ (empty)
-\ ;
+: List-add-list-0 ( list_parent_ list_child_ -- )
+    List-add-list-1
+    \ list_parent_
+    drop
+;
 
 : List-get ( list_ n -- node_ )
     1 +

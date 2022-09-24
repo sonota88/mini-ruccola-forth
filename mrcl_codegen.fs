@@ -785,7 +785,7 @@ defer gen-stmts
 ;
 
 : gen-stmt ( ctx_ stmt_ -- )
-    s" gen-stmt" puts-fn
+    \ s" gen-stmt" puts-fn
 
     dup
     \ ctx_ stmt_ stmt_
@@ -877,7 +877,7 @@ defer gen-stmts
 ;
 
 :noname ( ctx_ stmts_ -- )
-    s" gen-stmts" puts-fn
+    \ s" gen-stmts" puts-fn
 
     dup List-len 0
     \ ctx_ stmts_ | size 0
