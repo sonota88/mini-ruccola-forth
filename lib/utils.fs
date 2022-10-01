@@ -20,8 +20,6 @@ create read-char-buf_ 1 chars allot
 
 \ --------------------------------
 
-: dd .s cr ;
-
 : emit-e ( c -- )
     stderr emit-file throw
     stderr flush-file throw
@@ -132,7 +130,6 @@ create read-char-buf_ 1 chars allot
 
 : str-cp ( sa_ sb_ len -- )
     \ sa_ sb_ len
-    \ ." str-cp" dd
     2 pick
     \ sa_ sb_ len sa_
     swap
