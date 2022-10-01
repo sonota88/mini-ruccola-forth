@@ -519,9 +519,9 @@ create read-char-buf_ 1 chars allot
 ;
 
 : str-take-str ( s_ size -- s_ size )
-    1 pick
-    \ s_ size | s_
-    1 34 char-index ( find double quote at end of string )
+    str-dup
+    \ s_ size | s_ size
+    1 34 char-index-v2 ( find double quote at end of string )
     \ s_ size | index
 
     2 pick
