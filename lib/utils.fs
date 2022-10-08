@@ -270,49 +270,6 @@ create read-char-buf_ 1 chars allot
     \ s2_ size2
 ;
 
-\ TODO Try using ?do/loop
-\ index に加えて flag を返すとよい？
-: char-index ( s_ start-index char -- index )
-    2 pick
-    \ s_ start-index char s_
-    2 pick
-    \ s_ start-index char s_ start-index
-    chars +
-    \ s_ start-index char s2_
-
-    begin
-        \ s_ start-index char s2_
-
-        dup c@
-        \ s_ start-index char s2_ c
-
-        dup 0 = if ( end of string )
-            -1
-            exit
-        endif
-
-        2 pick = if
-            \ s_ start-index char s2_
-            swap drop
-            \ s_ start-index s2_
-            swap drop
-            \ s_ s2_
-
-            swap
-            \ s2_ s_
-            -
-            \ index
-            exit
-        else
-            \ s_ start-index char s2_
-            1 chars +
-            \ s_ start-index char s2_
-        endif
-    again
-
-    panic
-;
-
 \ TODO assert i < size
 : char-at ( s_ size  i -- c )
     drop-1

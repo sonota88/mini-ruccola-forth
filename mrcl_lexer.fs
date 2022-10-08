@@ -93,11 +93,10 @@ create src-end_ 1 cells allot
 ;
 
 : lf-index ( s_ size -- index flag )
-    drop
     \ s_
     0 10
-    \ s_ start-index char
-    char-index
+    \ s_ size  start-index char
+    char-index-v2
     \ index
 
     dup 0 >= if
