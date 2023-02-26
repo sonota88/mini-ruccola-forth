@@ -96,7 +96,7 @@ create src-end_ 1 cells allot
     \ s_
     0 10
     \ s_ size  start-index char
-    char-index-v2
+    char-index-1
     \ index
 
     dup 0 >= if

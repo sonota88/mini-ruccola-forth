@@ -113,7 +113,7 @@ create read-tokens-end_ 1 cells allot
         10 \ LF
         \ rest_ ti | rest_ start-index char
 
-        char-index-v2
+        char-index-1
         \ rest_ ti | index
         dup 0 <= if
             \ rest_ ti
