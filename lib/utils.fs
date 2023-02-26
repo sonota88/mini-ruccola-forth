@@ -280,8 +280,7 @@ create read-char-buf_ 1 chars allot
     \ c
 ;
 
-\ index に加えて flag を返すとよい？
-: char-index-1 ( s_ size  start-index char -- index )
+: char-index-2 ( s_ size  start-index char -- index flag )
     2 pick
     2 pick
     \ s_ size  start-index char | size start-index
@@ -297,8 +296,8 @@ create read-char-buf_ 1 chars allot
             str-drop
             \ (empty)
 
-            i
-            \ i
+            i true
+            \ i flag
             unloop exit
         endif
     loop
@@ -308,6 +307,14 @@ create read-char-buf_ 1 chars allot
     \ (empty)
 
     -1
+    false
+    \ s_ size  i flag
+;
+
+\ index に加えて flag を返すとよい？
+: char-index-1 ( s_ size  start-index char -- index )
+    char-index-2
+    drop
 ;
 
 : include-char? ( s_ size  c -- flag )
