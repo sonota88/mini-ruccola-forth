@@ -93,7 +93,6 @@ create src-end_ 1 cells allot
 ;
 
 : lf-index ( s_ size -- index flag )
-    \ s_
     0 10
     \ s_ size  start-index char
     char-index-1
@@ -340,6 +339,7 @@ create src-end_ 1 cells allot
     str-drop
 ;
 
+\ TODO utils にも同名のものがある
 : print-int ( s_ size -- )
     1 s" int"
     \ s_ size | 1 kind_ size
