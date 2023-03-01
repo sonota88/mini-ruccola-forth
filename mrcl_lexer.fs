@@ -95,18 +95,7 @@ create src-end_ 1 cells allot
 : lf-index ( s_ size -- index flag )
     0 10
     \ s_ size  start-index char
-    char-index-1
-    \ index
-
-    dup 0 >= if
-        \ index
-        true
-        \ index ok
-    else
-        \ index
-        false
-        \ index ng
-    endif
+    char-index-2
 ;
 
 : match-sym ( rest_ size -- num-chars flag )
