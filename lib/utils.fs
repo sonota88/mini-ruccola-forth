@@ -308,7 +308,7 @@ create read-char-buf_ 1 chars allot
 
     -1
     false
-    \ s_ size  i flag
+    \ i flag
 ;
 
 \ index に加えて flag を返すとよい？
