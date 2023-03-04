@@ -115,13 +115,9 @@ create read-tokens-end_ 1 cells allot
 
         char-index-2
         \ rest_ ti | index flag
-        if
-            \ ok
-        else
-            panic
-        endif
-
+        check-and-panic
         \ rest_ ti | index
+
         dup 0 <= if
             \ rest_ ti
             panic ( must not happen )
