@@ -436,7 +436,7 @@ create src-end_ 1 cells allot
 ;
 
 : main
-    read-stdin-all-v2
+    read-stdin-all
     \ src_ size
 
     str-dup

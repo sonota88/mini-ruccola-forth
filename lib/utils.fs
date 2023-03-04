@@ -293,8 +293,7 @@ create read-char-buf_ 1 chars allot
     endif
 ;
 
-\ TODO rename
-: read-stdin-all-v2 ( -- src_ size )
+: read-stdin-all ( -- src_ size )
     here
     \ src_
     100000 chars allot \ TODO 多めに確保している

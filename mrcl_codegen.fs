@@ -1037,7 +1037,7 @@ is gen-stmts
 ;
 
 : main
-    read-stdin-all-v2
+    read-stdin-all
     \ json_ size
 
     Json-parse
