@@ -439,8 +439,7 @@ defer gen-expr-v2
         drop
         \ (empty)
     else
-        ." 46"
-        panic
+        ." 46" panic
     endif
     endif
     endif
@@ -865,8 +864,7 @@ defer gen-stmts
         \ (empty)
 
     else
-        ." 287"
-        panic
+        ." 287" panic
     endif
     endif
     endif
