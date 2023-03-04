@@ -311,12 +311,6 @@ create read-char-buf_ 1 chars allot
     \ i flag
 ;
 
-\ index に加えて flag を返すとよい？
-: char-index-1 ( s_ size  start-index char -- index )
-    char-index-2
-    drop
-;
-
 : include-char? ( s_ size  c -- flag )
     0 swap
     \ s_ size  start-index c
