@@ -121,65 +121,6 @@ create read-char-buf_ 1 chars allot
     drop drop
 ;
 
-: str-cp ( sa_ sb_ len -- )
-    \ sa_ sb_ len
-    2 pick
-    \ sa_ sb_ len sa_
-    swap
-    \ sa_ sb_ sa_ len
-    chars +
-    \ sa_ sb_ sa_end_
-
-    begin
-        dup
-        \ sa_ sb_ sa_end_ | sa_end_
-        3 pick
-        \ sa_ sb_ sa_end_ | sa_end_ sa_
-        <= if
-            \ sa_ sb_ sa_end_
-            0
-            \ sa_ sb_ sa_end_ | 0
-            2 pick
-            \ sa_ sb_ sa_end_ | 0 sb_
-            c!
-            \ sa_ sb_ sa_end_
-            drop drop drop
-            exit
-        endif
-
-        \ sa_ sb_ sa_end_
-        2 pick
-        \ sa_ sb_ sa_end_ sa_
-        c@
-        \ sa_ sb_ sa_end_ c
-
-        2 pick
-        \ sa_ sb_ sa_end_ | c sb_
-        c!
-        \ sa_ sb_ sa_end_
-
-        2 pick
-        \ sa_ sb_ sa_end_ sa_
-        1 chars +
-        \ sa_ sb_ sa_end_ sa2_
-        
-        2 pick
-        \ sa_ sb_ sa_end_ sa_ sb_
-        1 chars +
-        \ sa_ sb_ sa_end_ sa2_ sb2_
-        2 pick
-        \ sa_ sb_ sa_end_ sa2_ sb2_ sa_end_
-        drop-3
-        \ sa_ sb_ sa2_ sb2_ sa_end_
-        drop-3
-        \ sa_ sa2_ sb2_ sa_end_
-        drop-3
-        \ sa2_ sb2_ sa_end_
-        
-        \ panic
-    again
-;
-
 : substr--head ( sa_ len -- new_s_ )
     \ sa_ len
     here
