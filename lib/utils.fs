@@ -98,12 +98,6 @@ create read-char-buf_ 1 chars allot
     r> r> r>
 ;
 
-: drop-4 ( 4 3 2 1 0 -- 3 2 1 0 )
-    >r >r >r >r
-    drop
-    r> r> r> r>
-;
-
 : str-eq ( sa_ size  sb_ size -- bool )
     compare \ => 等しい場合 0
     0 =
