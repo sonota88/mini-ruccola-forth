@@ -291,7 +291,7 @@ create src-end_ 1 cells allot
     cr
 ;
 
-: print-kw ( val_ size -- )
+: print-token-kw ( val_ size -- )
     1 s" kw"
     \ val_ size | 1  kind_ size
     4 pick
@@ -303,7 +303,7 @@ create src-end_ 1 cells allot
     str-drop
 ;
 
-: print-ident ( rest_ size -- )
+: print-token-ident ( rest_ size -- )
     1 s" ident"
     \ rest_ size | 1  kind_ size
     4 pick
@@ -315,7 +315,7 @@ create src-end_ 1 cells allot
     str-drop
 ;
 
-: print-sym ( s_ size -- )
+: print-token-sym ( s_ size -- )
     1 s" sym"
     \ s_ size | 1 kind_ size
     4 pick
@@ -328,8 +328,7 @@ create src-end_ 1 cells allot
     str-drop
 ;
 
-\ TODO utils にも同名のものがある
-: print-int ( s_ size -- )
+: print-token-int ( s_ size -- )
     1 s" int"
     \ s_ size | 1 kind_ size
     4 pick
@@ -342,7 +341,7 @@ create src-end_ 1 cells allot
     str-drop
 ;
 
-: print-str ( s_ size -- )
+: print-token-str ( s_ size -- )
     1 s" str"
     \ s_ size | 1 kind_ size
     4 pick
@@ -471,7 +470,7 @@ create src-end_ 1 cells allot
             \ rest_ size | s_ num-chars
             str-dup
             \ rest_ size | s_ num-chars | s_ num-chars
-            print-int
+            print-token-int
             \ rest_ size | s_ num-chars
             drop-1
             \ rest_ size num-chars
@@ -486,7 +485,7 @@ create src-end_ 1 cells allot
 
             str-dup
             \ rest_ size | s_ size | s_ size
-            print-str
+            print-token-str
             \ rest_ size | s_ size
 
             drop-1
@@ -500,7 +499,7 @@ create src-end_ 1 cells allot
             \ rest_ size  num-chars | s_
             1 pick
             \ rest_ size  num-chars | s_ size
-            print-sym
+            print-token-sym
             \ rest_ size  num-chars
 
         else lex-ident? if
@@ -514,13 +513,13 @@ create src-end_ 1 cells allot
                 \ rest_ size index
                 2 pick 1 pick
                 \ rest_ size index | rest_ index
-                print-kw
+                print-token-kw
                 \ rest_ size index
             else
                 \ rest_ size index
                 2 pick 1 pick
                 \ rest_ size index | rest_ index
-                print-ident
+                print-token-ident
                 \ rest_ size index
             endif
 
