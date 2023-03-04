@@ -320,9 +320,9 @@ create read-char-buf_ 1 chars allot
 : include-char? ( s_ size  c -- flag )
     0 swap
     \ s_ size  start-index c
-    char-index-1
-    \ i
-    0 >=
+    char-index-2
+    \ i flag
+    drop-1
 ;
 
 : digit-char? ( c -- flag )
