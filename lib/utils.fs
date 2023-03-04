@@ -121,29 +121,6 @@ create read-char-buf_ 1 chars allot
     drop drop
 ;
 
-: substr ( s_ from to -- new_s_ )
-    \ s_ from to
-    1 pick
-    \ s_ from | to from
-    -
-    \ s_ from len
-
-    2 pick
-    \ s_ from len s_
-    2 pick
-    \ s_ from len s_ from
-    chars +
-    \ s_ from len tail_
-    swap
-    \ s_ from tail_ len
-    substr--head
-    \ s_ from new_s_
-    swap drop
-    \ s_ new_s_
-    swap drop
-    \ new_s_
-;
-
 : str-len ( s_ -- len )
     \ s_
     dup
