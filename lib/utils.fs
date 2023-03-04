@@ -485,7 +485,13 @@ create read-char-buf_ 1 chars allot
 : str-take-str ( s_ size -- s_ size )
     str-dup
     \ s_ size | s_ size
-    1 34 char-index-1 ( find double quote at end of string )
+    1 34 char-index-2 ( find double quote at end of string )
+    \ s_ size | index flag
+    if
+        \ ok
+    else
+        panic
+    endif
     \ s_ size | index
 
     2 pick

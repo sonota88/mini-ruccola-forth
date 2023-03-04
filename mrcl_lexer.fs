@@ -96,6 +96,7 @@ create src-end_ 1 cells allot
     0 10
     \ s_ size  start-index char
     char-index-2
+    \ index flag
 ;
 
 : match-sym ( rest_ size -- num-chars flag )

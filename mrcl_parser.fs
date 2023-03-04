@@ -113,7 +113,14 @@ create read-tokens-end_ 1 cells allot
         10 \ LF
         \ rest_ ti | rest_ size  start-index char
 
-        char-index-1
+        char-index-2
+        \ rest_ ti | index flag
+        if
+            \ ok
+        else
+            panic
+        endif
+
         \ rest_ ti | index
         dup 0 <= if
             \ rest_ ti
