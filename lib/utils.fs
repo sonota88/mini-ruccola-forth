@@ -121,24 +121,6 @@ create read-char-buf_ 1 chars allot
     drop drop
 ;
 
-: str-len ( s_ -- len )
-    \ s_
-    dup
-    \ s_ s2_
-    begin
-        dup c@
-        \ s_ s2_ c
-        0 = if
-            \ s_ s2_
-            swap -
-            exit
-        else
-            \ s_ s2_
-            1 chars +
-        endif
-    again
-;
-
 : str-rest ( s_ size  num-chars -- s_ size )
     2 pick
     \ s_ size  nc | s_
