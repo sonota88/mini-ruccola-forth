@@ -95,7 +95,7 @@ create src-end_ 1 cells allot
 : lf-index ( s_ size -- index flag )
     0 10
     \ s_ size  start-index char
-    char-index-2
+    char-index
     \ index flag
 ;
 

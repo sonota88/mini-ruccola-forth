@@ -113,7 +113,7 @@ create read-tokens-end_ 1 cells allot
         10 \ LF
         \ rest_ ti | rest_ size  start-index char
 
-        char-index-2
+        char-index
         \ rest_ ti | index flag
         check-and-panic
         \ rest_ ti | index

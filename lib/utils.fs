@@ -150,8 +150,7 @@ create read-char-buf_ 1 chars allot
     \ c
 ;
 
-\ TODO char-index でいいかも
-: char-index-2 ( s_ size  start-index char -- index flag )
+: char-index ( s_ size  start-index char -- index flag )
     2 pick
     2 pick
     \ s_ size  start-index char | size start-index
@@ -185,7 +184,7 @@ create read-char-buf_ 1 chars allot
 : include-char? ( s_ size  c -- flag )
     0 swap
     \ s_ size  start-index c
-    char-index-2
+    char-index
     \ i flag
     drop-1
 ;
@@ -351,7 +350,7 @@ create read-char-buf_ 1 chars allot
 : str-take-str ( s_ size -- s_ size )
     str-dup
     \ s_ size | s_ size
-    1 34 char-index-2 ( find double quote at end of string )
+    1 34 char-index ( find double quote at end of string )
     \ s_ size | index flag
     check-and-panic
     \ s_ size | index
