@@ -41,7 +41,6 @@ create read-char-buf_ 1 chars allot
     1 (bye)
 ;
 
-\ TODO throw が使える？
 : check-and-panic ( is-ok -- )
     if
         \ ok
@@ -280,6 +279,7 @@ create read-char-buf_ 1 chars allot
     \ c
 ;
 
+\ TODO char-index でいいかも
 : char-index-2 ( s_ size  start-index char -- index flag )
     2 pick
     2 pick
@@ -423,6 +423,7 @@ create read-char-buf_ 1 chars allot
     endif
 ;
 
+\ TODO rename
 : read-stdin-all-v2 ( -- src_ size )
     here
     \ src_
