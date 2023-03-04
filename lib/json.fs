@@ -34,7 +34,7 @@
     endif
 ;
 
-: print-indent-2 ( pretty lv -- pretty_lv )
+: print-indent-2 ( pretty lv -- pretty lv )
     1 pick
     1 pick
     \ pretty lv pretty lv
@@ -42,7 +42,7 @@
     \ pretty lv
 ;
 
-: print-indent-plus1-2 ( pretty lv -- pretty_lv )
+: print-indent-plus1-2 ( pretty lv -- pretty lv )
     1 pick
     1 pick
     \ pretty lv | pretty lv
@@ -354,7 +354,7 @@ is Json-print-list
             ." ("
             emit
             ." )" cr
-            ." 142: must not happen"
+            ." must not happen"
             panic
 
         endif
