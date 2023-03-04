@@ -360,7 +360,7 @@ create label-index_ 1 cells allot
     endif
 ;
 
-defer gen-expr-v2
+defer gen-expr
 
 : gen-expr-binop ( ctx_ expr_ -- )
     Node-get-list
@@ -371,7 +371,7 @@ defer gen-expr-v2
     \ ctx_ list_ | expr_
     2 pick swap
     \ ctx_ list_ | ctx_ expr_
-    gen-expr-v2
+    gen-expr
     \ ctx_ list_
     ."   push reg_a" cr
 
@@ -380,7 +380,7 @@ defer gen-expr-v2
     \ ctx_ list_ | expr_
     2 pick swap
     \ ctx_ list_ | ctx_ expr_
-    gen-expr-v2
+    gen-expr
     \ ctx_ list_
     ."   push reg_a" cr
     \ ctx_ list_
@@ -446,7 +446,7 @@ defer gen-expr-v2
     endif
 ;
 
-( gen-expr-v2 )
+( gen-expr )
 :noname ( ctx_ expr_ -- )
     dup
     \ ctx_ expr_ | expr_
@@ -467,7 +467,7 @@ defer gen-expr-v2
     endif
     endif
 ;
-is gen-expr-v2
+is gen-expr
 
 \ (return)
 \ (return {expr})
@@ -476,7 +476,7 @@ is gen-expr-v2
         \ ctx_ stmt_
         1 List-get
         \ ctx_ node_
-        gen-expr-v2
+        gen-expr
         \ (empty)
     else
         drop
@@ -496,7 +496,7 @@ is gen-expr-v2
     \ ctx_ dest_ expr_ | ctx_
     1 pick
     \ ctx_ dest_ expr_ | ctx_ expr_
-    gen-expr-v2
+    gen-expr
     \ ctx_ dest_ expr_
     drop
     \ ctx_ dest_
@@ -598,7 +598,7 @@ is gen-expr-v2
         \ ctx_ funcall_ args-r_ | node_
         3 pick swap
         \ ctx_ funcall_ args-r_ | ctx_ node_
-        gen-expr-v2
+        gen-expr
         \ ctx_ funcall_ args-r_
         ."   push reg_a" cr
         \ ctx_ funcall_ args-r_
@@ -693,7 +693,7 @@ defer gen-stmts
     \ ctx_ stmt_ li | ctx_ stmt_
     1 List-get
     \ ctx_ stmt_ li | ctx_ expr_
-    gen-expr-v2
+    gen-expr
     \ ctx_ stmt_ li
 
     ."   cp 0 reg_b" cr
@@ -725,7 +725,7 @@ defer gen-stmts
     \ ctx_ when_ 0
     List-get
     \ ctx_ expr_
-    gen-expr-v2
+    gen-expr
     \ (empty)
 ;
 
