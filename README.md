@@ -15,15 +15,14 @@ cd mini-ruccola-forth
 ```
 
 ```
-  $ LANG=C wc -l *.fs lib/*.fs
+  $ LANG=C wc -l *.fs lib/{types,utils}.fs
  1072 mrcl_codegen.fs
   543 mrcl_lexer.fs
   942 mrcl_parser.fs
-  378 lib/json.fs
   421 lib/types.fs
   382 lib/utils.fs
- 3738 total
+ 3360 total
 
-  $ cat *.fs lib/*.fs | grep -v '^ \+\\' | wc -l
-2776
+  $ cat *.fs lib/{types,utils}.fs | grep -v '^ \+\\' | wc -l
+2491
 ```
