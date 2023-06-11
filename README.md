@@ -1,5 +1,5 @@
 Forth（Gforth）でかんたんな自作言語のコンパイラを書いた  
-https://qiita.com/sonota88/items/cdc6322d802844dc0953
+https://zenn.dev/sonota88/articles/f48ee696ad1de4
 
 ```
   $ gforth -v
